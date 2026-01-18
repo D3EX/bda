@@ -145,29 +145,16 @@ st.markdown("""
 @st.cache_resource
 def init_connection():
     try:
-        # Afficher les infos de connexion (sans le mot de passe pour sécurité)
-        st.write("🔧 Tentative de connexion à la base de données...")
-        st.write(f"Host: {st.secrets['mysql']['host']}")
-        st.write(f"Port: {st.secrets['mysql']['port']}")
-        st.write(f"Database: {st.secrets['mysql']['database']}")
-        st.write(f"User: {st.secrets['mysql']['user']}")
-        
         conn = mysql.connector.connect(
             host=st.secrets["mysql"]["host"],
-            port=st.secrets["mysql"]["port"],
+            port=st.secrets["mysql"]["port"],  # important!
             database=st.secrets["mysql"]["database"],
             user=st.secrets["mysql"]["user"],
             password=st.secrets["mysql"]["password"]
         )
-        st.success("✅ Connexion réussie !")
         return conn
     except Error as e:
-        st.error(f"❌ Erreur de connexion à la base de données: {e}")
-        st.write("**Vérifiez :**")
-        st.write("1. Les identifiants sont-ils corrects ?")
-        st.write("2. La base de données est-elle accessible depuis l'extérieur ?")
-        st.write("3. Le port est-il ouvert (4069) ?")
-        st.write("4. Le firewall autorise-t-il les connexions ?")
+        st.error(f"Erreur de connexion à la base de données: {e}")
         return None
 # Initialiser la connexion
 conn = init_connection()
