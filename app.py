@@ -6,7 +6,25 @@ import pandas as pd
 import time
 from datetime import datetime
 import base64
+import sqlite3 
+DB_FILE = "app.db"
+SQL_FILE = "bdd.sql"
 
+if not os.path.exists(DB_FILE):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    with open(SQL_FILE, "r", encoding="utf-8") as f:
+        sql_script = f.read()
+
+    cursor.executescript(sql_script)
+    conn.commit()
+    conn.close()
+
+    st.success("✅ Database created successfully from bdd.sql")
+else:
+    st.info("ℹ️ Database already exists")
+    
 # Configuration de la page
 import streamlit as st
 import os
