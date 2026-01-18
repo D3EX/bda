@@ -8,7 +8,7 @@ from datetime import datetime
 import base64
 import sqlite3 
 DB_FILE = "app.db"
-SQL_FILE = "bdd.sql"
+SQL_FILE = "mydatabase.sql"
 
 if not os.path.exists(DB_FILE):
     conn = sqlite3.connect(DB_FILE)
