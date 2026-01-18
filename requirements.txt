@@ -1,0 +1,11 @@
+streamlit
+pandas
+mysql-connector-python
+plotly
+openpyxl
+numpy
+altair<6,>=4.0
+blinker<2,>=1.0.0
+cachetools<6,>=4.0
+click<9,>=7.0
+importlib-metadata<7,>=1.4
