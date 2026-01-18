@@ -27,7 +27,7 @@ if not os.path.exists(DB_FILE):
 
     st.success("✅ Database created successfully from mydatabase.sql")
 else:
-    st.info("ℹ️ Database already exists"
+    st.info("ℹ️ Database already exists")
 image_path = r"young-muslim-student-class.jpg"
 st.set_page_config(
     page_title="My Page",
