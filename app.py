@@ -11,7 +11,7 @@ import base64
 import streamlit as st
 import os
 
-image_path = r"C:\wamp64\www\pree\young-muslim-student-class.jpg"
+image_path = r"young-muslim-student-class.jpg"
 st.set_page_config(
     page_title="My Page",
     page_icon="🎓",
