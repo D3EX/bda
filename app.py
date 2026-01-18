@@ -6,9 +6,13 @@ import pandas as pd
 import time
 from datetime import datetime
 import base64
-import sqlite3 
+import sqlite3     
+# Configuration de la page
+import streamlit as st
+import os
+
 DB_FILE = "app.db"
-SQL_FILE = "mydatabase.sql"
+SQL_FILE = "mydatabase.sql"   # ← your real file name
 
 if not os.path.exists(DB_FILE):
     conn = sqlite3.connect(DB_FILE)
@@ -21,14 +25,9 @@ if not os.path.exists(DB_FILE):
     conn.commit()
     conn.close()
 
-    st.success("✅ Database created successfully from bdd.sql")
+    st.success("✅ Database created successfully from mydatabase.sql")
 else:
-    st.info("ℹ️ Database already exists")
-    
-# Configuration de la page
-import streamlit as st
-import os
-
+    st.info("ℹ️ Database already exists"
 image_path = r"young-muslim-student-class.jpg"
 st.set_page_config(
     page_title="My Page",
