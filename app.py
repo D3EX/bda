@@ -11,23 +11,6 @@ import sqlite3
 import streamlit as st
 import os
 
-DB_FILE = "app.db"
-SQL_FILE = "mydatabase.sql"   # ← your real file name
-
-if not os.path.exists(DB_FILE):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-
-    with open(SQL_FILE, "r", encoding="utf-8") as f:
-        sql_script = f.read()
-
-    cursor.executescript(sql_script)
-    conn.commit()
-    conn.close()
-
-    st.success("✅ Database created successfully from mydatabase.sql")
-else:
-    st.info("ℹ️ Database already exists")
 image_path = r"young-muslim-student-class.jpg"
 st.set_page_config(
     page_title="My Page",
