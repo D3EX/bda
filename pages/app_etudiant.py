@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="UniSchedule - Portail Étudiant",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # CSS personnalisé pour l'interface moderne
