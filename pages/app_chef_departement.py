@@ -297,18 +297,19 @@ def load_secrets():
 
 @st.cache_resource
 def init_connection():
-    """Initialiser la connexion MySQL"""
     try:
         conn = mysql.connector.connect(
-            host=secrets["host"],
-            database=secrets["database"],
-            user=secrets["user"],
-            password=secrets["password"]
+            host=st.secrets["mysql"]["host"],
+            port=st.secrets["mysql"]["port"],  # important!
+            database=st.secrets["mysql"]["database"],
+            user=st.secrets["mysql"]["user"],
+            password=st.secrets["mysql"]["password"]
         )
         return conn
     except Error as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
         return None
+
 
 def run_query(query, params=None, fetch=True):
     """Exécuter une requête SQL"""
