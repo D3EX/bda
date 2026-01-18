@@ -22,6 +22,10 @@ st.set_page_config(
 # Hide Streamlit default UI elements
 hide_streamlit_style = """
     <style>
+        /* Cache la navigation */
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
     /* Hide top menu and footer */
     #MainMenu {display: none;}
     footer {display: none;}
