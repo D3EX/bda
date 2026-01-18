@@ -78,18 +78,21 @@ secrets = load_secrets()
 
 # Fonction de connexion à MySQL
 @st.cache_resource
+
 def init_connection():
     try:
         conn = mysql.connector.connect(
-            host=secrets["host"],
-            database=secrets["database"],
-            user=secrets["user"],
-            password=secrets["password"]
+            host=st.secrets["mysql"]["host"],
+            port=st.secrets["mysql"]["port"],  # important!
+            database=st.secrets["mysql"]["database"],
+            user=st.secrets["mysql"]["user"],
+            password=st.secrets["mysql"]["password"]
         )
         return conn
     except Error as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
         return None
+
 
 # Initialiser la connexion
 conn = init_connection()
