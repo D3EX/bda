@@ -1291,10 +1291,10 @@ def main():
             </p>
             <div class="hero-buttons">
                 <a class="hero-button-primary">
-                    <span>{ACADEMIC_EMOJIS['calendar']} Consulter les emplois du temps</span>
+                    <span>{ACADEMIC_EMOJIS['calendar']} Données fiables et mises à jour </span>
                 </a>
                 <a class="hero-button-secondary">
-                    <span>{ACADEMIC_EMOJIS['stats']} Voir les statistiques</span>
+                    <span>{ACADEMIC_EMOJIS['stats']} Disponible 24h/24 et 7j/7</span>
                     <span>{ACADEMIC_EMOJIS['analytics']}</span>
                 </a>
             </div>
