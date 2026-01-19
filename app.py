@@ -1269,7 +1269,7 @@ def main():
             </div>
             <div class="nav-info-item">
                 <span>{ACADEMIC_EMOJIS['location']}</span>
-                <span>Université UST</span>
+                <span>Université Boumerdes</span>
             </div>
         </div>
     </div>
