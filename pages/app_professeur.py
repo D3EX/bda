@@ -388,7 +388,7 @@ with st.sidebar:
         SELECT COUNT(*) as total FROM examens 
         WHERE (professeur_id = %s OR surveillant_id = %s)
         AND date_examen BETWEEN %s AND %s
-        AND statut = 'confirmé'
+        AND e.statut = 'planifié
     """, (PROFESSEUR_ID, PROFESSEUR_ID, date_debut, date_fin))
     
     if examens_data:
@@ -587,7 +587,7 @@ if selected_menu == "📊 Tableau de Bord":
             JOIN modules m ON e.module_id = m.id
             WHERE (e.professeur_id = %s OR e.surveillant_id = %s)
             AND e.date_examen >= CURDATE()
-            AND e.statut = 'confirmé'
+            AND e.statut = 'planifié
             ORDER BY e.date_examen, e.heure_debut
             LIMIT 1
         """, (PROFESSEUR_ID, PROFESSEUR_ID))
