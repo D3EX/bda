@@ -381,28 +381,6 @@ with st.sidebar:
     with col_d2:
         date_fin = st.date_input("Fin", datetime.now() + timedelta(days=30), key="date_fin", label_visibility="collapsed")
     
-    st.markdown("---")
-    
-    # Quick Stats
-    examens_data = run_query("""
-        SELECT COUNT(*) as total FROM examens 
-        WHERE (professeur_id = %s OR surveillant_id = %s)
-        AND date_examen BETWEEN %s AND %s
-        AND e.statut = 'planifié
-    """, (PROFESSEUR_ID, PROFESSEUR_ID, date_debut, date_fin))
-    
-    if examens_data:
-        st.markdown("### 📋 Aperçu rapide")
-        st.markdown(f"""
-        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
-            <div style="font-size: 2rem; font-weight: bold; text-align: center;">
-                {examens_data[0]['total']}
-            </div>
-            <div style="text-align: center; opacity: 0.9;">Examens planifiés</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("---")
     
     # Actions
     col_act1, col_act2 = st.columns(2)
