@@ -1300,11 +1300,11 @@ def main():
             </div>
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="hero-stat-number">50+</div>
+                    <div class="hero-stat-number">10+</div>
                     <div class="hero-stat-label">Établissements</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-number">500K+</div>
+                    <div class="hero-stat-number">500+</div>
                     <div class="hero-stat-label">Examens gérés</div>
                 </div>
                 <div class="hero-stat">
