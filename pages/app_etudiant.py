@@ -156,23 +156,32 @@ def wait_for_secrets(timeout=10):
 
 def get_connection():
     if "conn" not in st.session_state:
-        wait_for_secrets()
+
+        if "mysql" not in st.secrets:
+            st.error("Secrets not loaded.")
+            st.stop()
 
         cfg = st.secrets["mysql"]
 
-        st.session_state.conn = mysql.connector.connect(
-            host=cfg["host"],
-            port=int(cfg["port"]),
-            database=cfg["database"],
-            user=cfg["user"],
-            password=cfg["password"],
-            autocommit=True
-        )
+        try:
+            st.session_state.conn = mysql.connector.connect(
+                host=cfg["host"],
+                port=int(cfg["port"]),
+                user=cfg["user"],
+                password=cfg["password"],
+                database=cfg["database"],
+                ssl_disabled=False,
+                autocommit=True
+            )
+        except Error as e:
+            st.write("MySQL ERROR:", str(e))
+            st.stop()
 
     return st.session_state.conn
 
 
 conn = get_connection()
+
 
 
 # Fonction pour exécuter les requêtes SQL
