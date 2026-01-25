@@ -688,8 +688,8 @@ def main():
                 "Mot de passe",
                 type="password",
                 key="password",
-                label_visibility="collapsed",
-                placeholder="••••••••••••"
+                label_visibility="",
+                placeholder=""
             )
             
             # Options row
