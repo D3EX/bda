@@ -1360,7 +1360,6 @@ def main():
     """, unsafe_allow_html=True)
     
     # Hero Section avec image mise en cache
-    cached_image = get_base64_image()
     st.markdown(f"""
     <div class="hero-container">
         <div class="hero-content">
