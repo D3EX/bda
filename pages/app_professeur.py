@@ -9,7 +9,7 @@ import os
 import toml
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import time
 
 # Configuration de la page
 st.set_page_config(
@@ -85,7 +85,6 @@ st.markdown("""
     /* Sidebar styling */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #ffffff 0%, #d3d3d3 100%);
-
         padding-top: 2rem;
     }
     
@@ -207,18 +206,23 @@ st.markdown("""
         background: #3498db;
         color: white;
     }
+    
+    /* Loading indicator */
+    .loading-spinner {
+        text-align: center;
+        padding: 3rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # HIDE THE PAGE NAVIGATION
-hide_pages_navigation = """
+st.markdown("""
     <style>
         [data-testid="stSidebarNav"] {
             display: none;
         }
     </style>
-"""
-st.markdown(hide_pages_navigation, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # === VÉRIFICATION DE SESSION ===
 if 'logged_in' not in st.session_state or not st.session_state.logged_in:
@@ -235,7 +239,7 @@ if 'role' not in st.session_state or st.session_state.role != 'professeur':
 
 PROFESSEUR_ID = st.session_state.user_id
 
-# === FONCTIONS AUXILIAIRES (garder les fonctions existantes) ===
+# === FONCTIONS AUXILIAIRES OPTIMISÉES ===
 def load_secrets():
     possible_paths = [
         r"C:\Users\FARES DH\.streamlit\secrets.toml",
@@ -261,36 +265,46 @@ def load_secrets():
 
 secrets = load_secrets()
 
-@st.cache_resource
+@st.cache_resource(ttl=3600)
 def init_connection():
     try:
         conn = mysql.connector.connect(
             host=st.secrets["mysql"]["host"],
-            port=st.secrets["mysql"]["port"],  # important!
+            port=st.secrets["mysql"]["port"],
             database=st.secrets["mysql"]["database"],
             user=st.secrets["mysql"]["user"],
-            password=st.secrets["mysql"]["password"]
+            password=st.secrets["mysql"]["password"],
+            pool_name="profpool",
+            pool_size=3,
+            pool_reset_session=True,
+            buffered=True
         )
         return conn
     except Error as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
         return None
 
-
 conn = init_connection()
 
 def run_query(query, params=None, fetch=True):
     try:
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(dictionary=True, buffered=True)
         if params:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
         
         if fetch:
-            result = cursor.fetchall()
+            # Charger par batch pour optimisation
+            batch_size = 500
+            results = []
+            while True:
+                batch = cursor.fetchmany(batch_size)
+                if not batch:
+                    break
+                results.extend(batch)
             cursor.close()
-            return result
+            return results
         else:
             conn.commit()
             cursor.close()
@@ -299,7 +313,77 @@ def run_query(query, params=None, fetch=True):
         st.error(f"Erreur SQL: {e}")
         return None
 
+@st.cache_data(ttl=300, show_spinner="Chargement des informations...")
+def get_professeur_info(prof_id):
+    """Récupérer les informations du professeur"""
+    return run_query("""
+        SELECT p.nom, p.prenom, p.specialite, p.heures_service, d.nom as departement
+        FROM professeurs p
+        LEFT JOIN departements d ON p.dept_id = d.id
+        WHERE p.id = %s
+    """, (prof_id,))
+
+@st.cache_data(ttl=300, show_spinner="Chargement des examens...")
+def get_examens_professeur_optimise(prof_id, date_debut, date_fin, role=None):
+    """Récupérer les examens du professeur (optimisé)"""
+    query = """
+        SELECT 
+            e.id,
+            e.date_examen,
+            e.heure_debut,
+            e.heure_fin,
+            e.duree_minutes,
+            e.statut,
+            e.session,
+            e.salle_id,
+            m.nom as module,
+            f.nom as formation,
+            CASE WHEN e.professeur_id = %s THEN 'Responsable' ELSE 'Surveillant' END as role
+        FROM examens e
+        JOIN modules m ON e.module_id = m.id
+        JOIN formations f ON m.formation_id = f.id
+        WHERE (e.professeur_id = %s OR e.surveillant_id = %s)
+        AND e.date_examen BETWEEN %s AND %s
+    """
+    
+    params = [prof_id, prof_id, prof_id, date_debut, date_fin]
+    
+    if role == "Responsable":
+        query += " AND e.professeur_id = %s"
+        params.append(prof_id)
+    elif role == "Surveillant":
+        query += " AND e.surveillant_id = %s"
+        params.append(prof_id)
+    
+    query += " ORDER BY e.date_examen, e.heure_debut"
+    
+    return run_query(query, params)
+
+@st.cache_data(ttl=300, show_spinner=False)
+def get_statistiques_professeur(prof_id, date_debut, date_fin):
+    """Statistiques du professeur"""
+    result = run_query("""
+        SELECT 
+            COUNT(*) as total_examens,
+            SUM(CASE WHEN e.professeur_id = %s THEN 1 ELSE 0 END) as responsable,
+            SUM(CASE WHEN e.surveillant_id = %s THEN 1 ELSE 0 END) as surveillant,
+            SUM(e.duree_minutes) as total_minutes
+        FROM examens e
+        WHERE (e.professeur_id = %s OR e.surveillant_id = %s)
+        AND e.date_examen BETWEEN %s AND %s
+        AND e.statut = 'confirmé'
+    """, (prof_id, prof_id, prof_id, prof_id, date_debut, date_fin))
+    
+    return result[0] if result else {}
+
 # === HEADER PRINCIPAL ===
+professeur_info = get_professeur_info(PROFESSEUR_ID)
+if professeur_info:
+    prof = professeur_info[0]
+else:
+    st.error("Professeur non trouvé")
+    st.stop()
+
 st.markdown("""
 <div class="header-container">
     <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -321,20 +405,6 @@ st.markdown("""
 </div>
 """.format(st.session_state.nom_complet), unsafe_allow_html=True)
 
-# === RÉCUPÉRATION DES INFOS PROFESSEUR ===
-professeur_info = run_query("""
-    SELECT p.nom, p.prenom, p.specialite, p.heures_service, d.nom as departement
-    FROM professeurs p
-    LEFT JOIN departements d ON p.dept_id = d.id
-    WHERE p.id = %s
-""", (PROFESSEUR_ID,))
-
-if professeur_info:
-    prof = professeur_info[0]
-else:
-    st.error("Professeur non trouvé")
-    st.stop()
-
 # === SIDEBAR REDESIGNÉE ===
 with st.sidebar:
     # Photo de profil
@@ -342,13 +412,13 @@ with st.sidebar:
     with col2:
         st.markdown("""
         <div style="text-align: center; margin-bottom: 20px;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ffffff 0%, #bdc3c7 100%); border-radius: 10px; 
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ffffff 0%, #bdc3c7 100%); 
                      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
                      margin: 0 auto 10px; font-size: 2rem;">
                 👨‍🏫
             </div>
             <div style="font-weight: bold; font-size: 1.1rem;">{}</div>
-            <div style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Professeur</div>
+            <div style="color: rgba(0, 0, 0, 0.8); font-size: 0.9rem;">Professeur</div>
         </div>
         """.format(f"{prof['prenom']} {prof['nom'][0]}."), unsafe_allow_html=True)
     
@@ -373,19 +443,38 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Période
-    st.markdown("### 📅 Période d'analyse")
+    # Période 2025-2026
+    st.markdown("### 📅 Période d'analyse (2025-2026)")
+    
+    # Définir les dates limites
+    min_date = datetime(2025, 1, 1).date()
+    max_date = datetime(2026, 12, 31).date()
+    
     col_d1, col_d2 = st.columns(2)
     with col_d1:
-        date_debut = st.date_input("Début", datetime.now(), key="date_debut", label_visibility="collapsed")
+        date_debut = st.date_input(
+            "Début", 
+            value=datetime(2025, 1, 1).date(),
+            min_value=min_date,
+            max_value=max_date,
+            key="date_debut", 
+            label_visibility="collapsed"
+        )
     with col_d2:
-        date_fin = st.date_input("Fin", datetime.now() + timedelta(days=30), key="date_fin", label_visibility="collapsed")
-    
+        date_fin = st.date_input(
+            "Fin", 
+            value=datetime(2026, 6, 30).date(),
+            min_value=date_debut,
+            max_value=max_date,
+            key="date_fin", 
+            label_visibility="collapsed"
+        )
     
     # Actions
     col_act1, col_act2 = st.columns(2)
     with col_act1:
         if st.button("🔄 Actualiser", use_container_width=True):
+            st.cache_data.clear()
             st.rerun()
     with col_act2:
         if st.button("🚪 Déconnexion", use_container_width=True):
@@ -395,42 +484,51 @@ with st.sidebar:
 
 # === CONTENU PRINCIPAL ===
 if selected_menu == "📊 Tableau de Bord":
+    # Charger les statistiques
+    with st.spinner("Calcul des statistiques..."):
+        stats = get_statistiques_professeur(PROFESSEUR_ID, date_debut, date_fin)
+        examens = get_examens_professeur_optimise(PROFESSEUR_ID, date_debut, date_fin)
+    
     # Métriques rapides
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.markdown("""
+        total_heures = (stats.get('total_minutes', 0) / 60) if stats else 0
+        st.markdown(f"""
         <div class="metric-card">
             <div style="font-size: 2rem;">📊</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">24</div>
-            <div style="color: #7f8c8d;">Heures ce mois</div>
+            <div style="font-size: 1.8rem; font-weight: bold;">{total_heures:.1f}h</div>
+            <div style="color: #7f8c8d;">Heures cette période</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown("""
+        total_examens = stats.get('total_examens', 0)
+        st.markdown(f"""
         <div class="metric-card">
             <div style="font-size: 2rem;">👥</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">156</div>
-            <div style="color: #7f8c8d;">Étudiants</div>
+            <div style="font-size: 1.8rem; font-weight: bold;">{total_examens}</div>
+            <div style="color: #7f8c8d;">Examens totaux</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
-        st.markdown("""
+        responsable_examens = stats.get('responsable', 0)
+        st.markdown(f"""
         <div class="metric-card">
             <div style="font-size: 2rem;">📚</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">6</div>
-            <div style="color: #7f8c8d;">Modules</div>
+            <div style="font-size: 1.8rem; font-weight: bold;">{responsable_examens}</div>
+            <div style="color: #7f8c8d;">En tant que responsable</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col4:
-        st.markdown("""
+        surveillant_examens = stats.get('surveillant', 0)
+        st.markdown(f"""
         <div class="metric-card">
             <div style="font-size: 2rem;">🎯</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">85%</div>
-            <div style="color: #7f8c8d;">Disponibilité</div>
+            <div style="font-size: 1.8rem; font-weight: bold;">{surveillant_examens}</div>
+            <div style="color: #7f8c8d;">En tant que surveillant</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -441,22 +539,8 @@ if selected_menu == "📊 Tableau de Bord":
         # Calendrier des examens à venir
         st.markdown("### 📅 Prochains examens")
         
-        # Récupérer les examens
-        examens = run_query("""
-            SELECT e.*, m.nom as module, f.nom as formation,
-                   CASE WHEN e.professeur_id = %s THEN 'Responsable' ELSE 'Surveillant' END as role
-            FROM examens e
-            JOIN modules m ON e.module_id = m.id
-            JOIN formations f ON m.formation_id = f.id
-            WHERE (e.professeur_id = %s OR e.surveillant_id = %s)
-            AND e.date_examen BETWEEN %s AND %s
-            AND e.statut = 'confirmé'
-            ORDER BY e.date_examen, e.heure_debut
-            LIMIT 5
-        """, (PROFESSEUR_ID, PROFESSEUR_ID, PROFESSEUR_ID, date_debut, date_fin))
-        
         if examens:
-            for exam in examens:
+            for exam in examens[:5]:  # Limiter à 5 pour l'affichage
                 role_class = "responsable" if exam['role'] == 'Responsable' else "surveillant"
                 badge_color = "badge-primary" if exam['role'] == 'Responsable' else "badge-success"
                 
@@ -475,54 +559,50 @@ if selected_menu == "📊 Tableau de Bord":
                         <div>⏱️ {exam['duree_minutes']} min</div>
                     </div>
                     <div style="margin-top: 5px; font-size: 0.9rem;">
-                        🏫 {exam.get('salle', 'Non assignée')}
+                        🏫 Salle {exam.get('salle_id', 'Non assignée')}
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
         else:
             st.info("Aucun examen prévu pour cette période.")
         
-        st.markdown('</div>', unsafe_allow_html=True)
-        
         # Graphique de charge
+        st.markdown("### 📈 Répartition par mois")
         
-        st.markdown("### 📈 Charge de travail hebdomadaire")
-        
-        # Données simulées pour le graphique
-        semaines = ['S1', 'S2', 'S3', 'S4']
-        heures = [12, 18, 15, 20]
-        
-        fig = go.Figure(data=[
-            go.Bar(
-                x=semaines,
-                y=heures,
-                marker_color=['#3498db', '#2ecc71', '#9b59b6', '#e74c3c'],
-                text=heures,
-                textposition='auto',
+        if examens:
+            df_examens = pd.DataFrame(examens)
+            df_examens['date_examen'] = pd.to_datetime(df_examens['date_examen'])
+            df_examens['mois'] = df_examens['date_examen'].dt.strftime('%b %Y')
+            
+            examens_par_mois = df_examens.groupby('mois').size().reset_index(name='count')
+            
+            fig = px.bar(
+                examens_par_mois, 
+                x='mois', 
+                y='count',
+                color='count',
+                color_continuous_scale='Blues'
             )
-        ])
-        
-        fig.update_layout(
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            showlegend=False,
-            height=300,
-            margin=dict(l=20, r=20, t=30, b=20)
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            
+            fig.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                showlegend=False,
+                height=300,
+                margin=dict(l=20, r=20, t=30, b=20)
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
     
     with col_right:
         # Profil professeur
-       
         st.markdown("### 👤 Profil Professeur")
         
         st.markdown(f"""
         <div style="text-align: center; margin-bottom: 20px;">
             <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%); 
                      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                     margin: 0 auto 15px; font-size: 2.5rem;">
+                     margin: 0 auto 15px; font-size: 2.5rem; color: white;">
                 {prof['prenom'][0]}{prof['nom'][0]}
             </div>
             <div style="font-weight: bold; font-size: 1.2rem;">{prof['prenom']} {prof['nom']}</div>
@@ -545,63 +625,63 @@ if selected_menu == "📊 Tableau de Bord":
         </div>
         
         <div style="margin-top: 20px;">
-            <div style="font-size: 0.9rem; margin-bottom: 5px;">Disponibilité</div>
+            <div style="font-size: 0.9rem; margin-bottom: 5px;">Taux d'occupation</div>
             <div class="progress-container">
-                <div class="progress-bar" style="width: 85%"></div>
+                <div class="progress-bar" style="width: {min(100, (total_examens * 100) / 50)}%"></div>
             </div>
-            <div style="text-align: right; font-size: 0.8rem; color: #7f8c8d;">85%</div>
+            <div style="text-align: right; font-size: 0.8rem; color: #7f8c8d;">
+                {min(100, (total_examens * 100) / 50):.1f}%
+            </div>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
         
         # Prochain examen
-        
         st.markdown("### ⏳ Prochain examen")
         
-        # Récupérer le prochain examen
-        prochain_examen = run_query("""
-            SELECT e.*, m.nom as module
-            FROM examens e
-            JOIN modules m ON e.module_id = m.id
-            WHERE (e.professeur_id = %s OR e.surveillant_id = %s)
-            AND e.date_examen >= CURDATE()
-            AND e.statut = 'planifié
-            ORDER BY e.date_examen, e.heure_debut
-            LIMIT 1
-        """, (PROFESSEUR_ID, PROFESSEUR_ID))
-        
-        if prochain_examen:
-            exam = prochain_examen[0]
-            st.markdown(f"""
-            <div style="text-align: center; padding: 15px;">
-                <div style="font-size: 2.5rem; margin-bottom: 10px;">📝</div>
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">
-                    {exam['module']}
+        if examens:
+            # Trouver le prochain examen à venir
+            now = datetime.now()
+            examens_futurs = [e for e in examens if pd.to_datetime(e['date_examen']) >= now]
+            
+            if examens_futurs:
+                exam = examens_futurs[0]
+                st.markdown(f"""
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📝</div>
+                    <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">
+                        {exam['module']}
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #3498db; margin: 10px 0;">
+                        {exam['date_examen']}
+                    </div>
+                    <div style="color: #7f8c8d;">
+                        ⏰ {exam['heure_debut']} - {exam['heure_fin']}
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 0.9rem;">⏱️ Durée: {exam['duree_minutes']} minutes</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px;">🎯 Rôle: {exam['role']}</div>
+                    </div>
                 </div>
-                <div style="font-size: 1.5rem; font-weight: bold; color: #3498db; margin: 10px 0;">
-                    {exam['date_examen']}
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div style="text-align: center; padding: 30px 20px;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+                    <div style="font-weight: bold; color: #2ecc71;">Aucun examen prévu</div>
+                    <div style="color: #7f8c8d; margin-top: 5px;">Profitez de votre temps libre !</div>
                 </div>
-                <div style="color: #7f8c8d;">
-                    ⏰ {exam['heure_debut']} - {exam['heure_fin']}
-                </div>
-                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                    <div style="font-size: 0.9rem;">⏱️ Durée: {exam['duree_minutes']} minutes</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
         else:
             st.markdown("""
             <div style="text-align: center; padding: 30px 20px;">
-                <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
-                <div style="font-weight: bold; color: #2ecc71;">Aucun examen prévu</div>
-                <div style="color: #7f8c8d; margin-top: 5px;">Profitez de votre temps libre !</div>
+                <div style="font-size: 3rem; margin-bottom: 10px;">📭</div>
+                <div style="font-weight: bold; color: #e74c3c;">Aucun examen trouvé</div>
+                <div style="color: #7f8c8d; margin-top: 5px;">Pour la période sélectionnée</div>
             </div>
             """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
 elif selected_menu == "📅 Mes Examens":
-    
-    st.markdown("### 📅 Mes Examens Confirmés")
+    st.markdown("### 📅 Mes Examens")
     
     # Filtres avancés
     col_f1, col_f2, col_f3, col_f4 = st.columns(4)
@@ -621,53 +701,28 @@ elif selected_menu == "📅 Mes Examens":
         )
     
     with col_f3:
-        formation_filter = st.selectbox(
-            "Formation",
-            ["Toutes"] + ["L1", "L2", "L3", "M1", "M2"],
-            key="formation_filter"
-        )
-    
-    with col_f4:
         statut_filter = st.selectbox(
             "Statut",
-            ["Tous", "Confirmé", "En attente", "Annulé"],
+            ["Tous", "confirmé", "planifié", "annulé"],
             key="statut_filter"
         )
     
-    # Récupérer les examens
-    query = """
-        SELECT e.*, m.nom as module, f.nom as formation,
-               CASE WHEN e.professeur_id = %s THEN 'Responsable' ELSE 'Surveillant' END as role,
-               p.nom as responsable_nom, p.prenom as responsable_prenom
-        FROM examens e
-        JOIN modules m ON e.module_id = m.id
-        JOIN formations f ON m.formation_id = f.id
-        LEFT JOIN professeurs p ON e.professeur_id = p.id
-        WHERE (e.professeur_id = %s OR e.surveillant_id = %s)
-        AND e.date_examen BETWEEN %s AND %s
-    """
-    
-    params = [PROFESSEUR_ID, PROFESSEUR_ID, PROFESSEUR_ID, date_debut, date_fin]
-    
-    if role_filter != "Tous":
-        if role_filter == "Responsable":
-            query += " AND e.professeur_id = %s"
-            params.append(PROFESSEUR_ID)
-        else:
-            query += " AND e.surveillant_id = %s"
-            params.append(PROFESSEUR_ID)
-    
-    if session_filter != "Toutes":
-        query += " AND e.session = %s"
-        params.append(session_filter)
-    
-    if statut_filter != "Tous":
-        query += " AND e.statut = %s"
-        params.append(statut_filter.lower())
-    
-    query += " ORDER BY e.date_examen, e.heure_debut"
-    
-    examens = run_query(query, params)
+    # Récupérer les examens avec filtres
+    with st.spinner("Chargement des examens..."):
+        examens = get_examens_professeur_optimise(
+            PROFESSEUR_ID, 
+            date_debut, 
+            date_fin,
+            role=role_filter if role_filter != "Tous" else None
+        )
+        
+        # Appliquer les autres filtres localement
+        if examens:
+            if session_filter != "Toutes":
+                examens = [e for e in examens if e['session'] == session_filter]
+            
+            if statut_filter != "Tous":
+                examens = [e for e in examens if e['statut'] == statut_filter]
     
     if examens:
         # Métriques
@@ -698,13 +753,23 @@ elif selected_menu == "📅 Mes Examens":
         )
         
         if view_mode == "📋 Liste":
-            # Affichage en liste
-            for exam in examens:
+            # Affichage en liste avec pagination
+            items_per_page = 10
+            total_pages = max(1, (len(examens) + items_per_page - 1) // items_per_page)
+            page_number = st.number_input("Page", min_value=1, max_value=total_pages, value=1, key="page_num")
+            
+            start_idx = (page_number - 1) * items_per_page
+            end_idx = min(start_idx + items_per_page, len(examens))
+            
+            st.caption(f"Affichage des examens {start_idx + 1} à {end_idx} sur {len(examens)}")
+            
+            for idx in range(start_idx, end_idx):
+                exam = examens[idx]
                 role_class = "responsable" if exam['role'] == 'Responsable' else "surveillant"
                 badge_color = "badge-primary" if exam['role'] == 'Responsable' else "badge-success"
                 statut_color = "badge-success" if exam['statut'] == 'confirmé' else "badge-warning"
                 
-                col_ex1, col_ex2, col_ex3 = st.columns([3, 1, 1])
+                col_ex1, col_ex2 = st.columns([4, 1])
                 
                 with col_ex1:
                     st.markdown(f"""
@@ -726,231 +791,271 @@ elif selected_menu == "📅 Mes Examens":
                             <div><span style="color: #7f8c8d;">⏱️</span> {exam['duree_minutes']} min</div>
                         </div>
                         <div style="margin-top: 5px; font-size: 0.9rem;">
-                            <span style="color: #7f8c8d;">🏫</span> {exam.get('salle', 'Non assignée')} | 
-                            <span style="color: #7f8c8d;">👥</span> {exam.get('nb_etudiants', 'N/A')} étudiants
+                            <span style="color: #7f8c8d;">🏫</span> Salle {exam.get('salle_id', 'Non assignée')} | 
+                            <span style="color: #7f8c8d;">🎯</span> {exam['session']}
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                 
                 with col_ex2:
-                    st.button("📋 Détails", key=f"detail_{exam['id']}", use_container_width=True)
-                
-                with col_ex3:
-                    st.button("🗺️ Salle", key=f"salle_{exam['id']}", use_container_width=True)
+                    if st.button("📋 Détails", key=f"detail_{exam['id']}", use_container_width=True):
+                        st.session_state['selected_exam'] = exam['id']
+                        st.rerun()
                 
                 st.markdown("---")
         else:
             # Affichage calendrier simplifié
             st.markdown("### 📅 Vue Calendrier")
-            # Ici vous pourriez implémenter un vrai calendrier interactif
             
-            # Pour l'instant, afficher un tableau par semaine
-            df_examens = pd.DataFrame(examens)
-            df_examens['date_examen'] = pd.to_datetime(df_examens['date_examen'])
-            df_examens['semaine'] = df_examens['date_examen'].dt.isocalendar().week
-            
-            st.dataframe(
-                df_examens[['date_examen', 'heure_debut', 'module', 'formation', 'role', 'statut']],
-                column_config={
-                    "date_examen": "Date",
-                    "heure_debut": "Heure",
-                    "module": "Module",
-                    "formation": "Formation",
-                    "role": "Rôle",
-                    "statut": "Statut"
-                },
-                use_container_width=True,
-                hide_index=True
-            )
+            if examens:
+                df_examens = pd.DataFrame(examens)
+                df_examens['date_examen'] = pd.to_datetime(df_examens['date_examen'])
+                
+                # Afficher par semaine
+                df_examens['semaine'] = df_examens['date_examen'].dt.strftime('Semaine %U')
+                
+                st.dataframe(
+                    df_examens[['date_examen', 'heure_debut', 'module', 'formation', 'role', 'statut']],
+                    column_config={
+                        "date_examen": "Date",
+                        "heure_debut": "Heure",
+                        "module": "Module",
+                        "formation": "Formation",
+                        "role": "Rôle",
+                        "statut": "Statut"
+                    },
+                    use_container_width=True,
+                    hide_index=True
+                )
     else:
         st.info("📭 Aucun examen trouvé pour les critères sélectionnés.")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
 elif selected_menu == "📈 Statistiques":
-    
     st.markdown("### 📈 Statistiques Détaillées")
     
-    # Graphiques en grille 2x2
-    col_chart1, col_chart2 = st.columns(2)
+    with st.spinner("Calcul des statistiques..."):
+        stats = get_statistiques_professeur(PROFESSEUR_ID, date_debut, date_fin)
+        examens = get_examens_professeur_optimise(PROFESSEUR_ID, date_debut, date_fin)
     
-    with col_chart1:
-        # Répartition par rôle
-        st.markdown("#### 📊 Répartition par rôle")
+    if examens:
+        df_examens = pd.DataFrame(examens)
+        df_examens['date_examen'] = pd.to_datetime(df_examens['date_examen'])
         
-        labels = ['Responsable', 'Surveillant']
-        values = [12, 8]  # Données simulées
+        # Graphiques en grille 2x2
+        col_chart1, col_chart2 = st.columns(2)
         
-        fig1 = go.Figure(data=[go.Pie(
-            labels=labels,
-            values=values,
-            hole=.4,
-            marker_colors=['#3498db', '#2ecc71']
-        )])
-        
-        fig1.update_layout(
-            height=300,
-            showlegend=True,
-            legend=dict(
-                yanchor="top",
-                y=0.99,
-                xanchor="left",
-                x=1.1
-            )
-        )
-        
-        st.plotly_chart(fig1, use_container_width=True)
-    
-    with col_chart2:
-        # Charge mensuelle
-        st.markdown("#### 📅 Charge mensuelle")
-        
-        mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin']
-        heures = [15, 22, 18, 25, 30, 28]
-        
-        fig2 = go.Figure(data=[
-            go.Bar(
-                x=mois,
-                y=heures,
-                marker_color='#3498db',
-                text=heures,
-                textposition='auto',
-            )
-        ])
-        
-        fig2.update_layout(
-            height=300,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)'
-        )
-        
-        st.plotly_chart(fig2, use_container_width=True)
-    
-    col_chart3, col_chart4 = st.columns(2)
-    
-    with col_chart3:
-        # Répartition par formation
-        st.markdown("#### 🎓 Répartition par formation")
-        
-        formations = ['L1', 'L2', 'L3', 'M1', 'M2']
-        nb_examens = [5, 3, 4, 2, 1]
-        
-        fig3 = go.Figure(data=[
-            go.Scatter(
-                x=formations,
-                y=nb_examens,
-                mode='lines+markers',
-                line=dict(color='#9b59b6', width=3),
-                marker=dict(size=10, color='#9b59b6')
-            )
-        ])
-        
-        fig3.update_layout(
-            height=300,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)'
-        )
-        
-        st.plotly_chart(fig3, use_container_width=True)
-    
-    with col_chart4:
-        # Disponibilité
-        st.markdown("#### ⏰ Disponibilité")
-        
-        jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']
-        disponibilite = [80, 90, 75, 85, 95]
-        
-        fig4 = go.Figure(data=[
-            go.Scatterpolar(
-                r=disponibilite,
-                theta=jours,
-                fill='toself',
-                fillcolor='rgba(52, 152, 219, 0.3)',
-                line=dict(color='#3498db')
-            )
-        ])
-        
-        fig4.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 100]
+        with col_chart1:
+            # Répartition par rôle
+            st.markdown("#### 📊 Répartition par rôle")
+            
+            role_counts = df_examens['role'].value_counts()
+            
+            fig1 = go.Figure(data=[go.Pie(
+                labels=role_counts.index.tolist(),
+                values=role_counts.values.tolist(),
+                hole=.4,
+                marker_colors=['#3498db', '#2ecc71']
+            )])
+            
+            fig1.update_layout(
+                height=300,
+                showlegend=True,
+                legend=dict(
+                    yanchor="top",
+                    y=0.99,
+                    xanchor="left",
+                    x=1.1
                 )
-            ),
-            showlegend=False,
-            height=300
-        )
+            )
+            
+            st.plotly_chart(fig1, use_container_width=True)
         
-        st.plotly_chart(fig4, use_container_width=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+        with col_chart2:
+            # Charge mensuelle
+            st.markdown("#### 📅 Charge mensuelle")
+            
+            df_examens['mois'] = df_examens['date_examen'].dt.strftime('%b')
+            examens_par_mois = df_examens.groupby('mois').size().reset_index(name='count')
+            
+            fig2 = go.Figure(data=[
+                go.Bar(
+                    x=examens_par_mois['mois'],
+                    y=examens_par_mois['count'],
+                    marker_color='#3498db',
+                    text=examens_par_mois['count'],
+                    textposition='auto',
+                )
+            ])
+            
+            fig2.update_layout(
+                height=300,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
+            
+            st.plotly_chart(fig2, use_container_width=True)
+        
+        col_chart3, col_chart4 = st.columns(2)
+        
+        with col_chart3:
+            # Répartition par statut
+            st.markdown("#### 🎯 Répartition par statut")
+            
+            statut_counts = df_examens['statut'].value_counts()
+            
+            fig3 = go.Figure(data=[
+                go.Scatter(
+                    x=statut_counts.index.tolist(),
+                    y=statut_counts.values.tolist(),
+                    mode='lines+markers',
+                    line=dict(color='#9b59b6', width=3),
+                    marker=dict(size=10, color='#9b59b6')
+                )
+            ])
+            
+            fig3.update_layout(
+                height=300,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
+            
+            st.plotly_chart(fig3, use_container_width=True)
+        
+        with col_chart4:
+            # Durée moyenne
+            st.markdown("#### ⏱️ Durée moyenne par examen")
+            
+            duree_moyenne = df_examens['duree_minutes'].mean()
+            
+            fig4 = go.Figure(data=[
+                go.Indicator(
+                    mode = "gauge+number",
+                    value = duree_moyenne,
+                    title = {'text': "Minutes"},
+                    gauge = {
+                        'axis': {'range': [0, 180]},
+                        'bar': {'color': "#3498db"},
+                        'steps': [
+                            {'range': [0, 60], 'color': "#e74c3c"},
+                            {'range': [60, 120], 'color': "#f39c12"},
+                            {'range': [120, 180], 'color': "#2ecc71"}
+                        ]
+                    }
+                )
+            ])
+            
+            fig4.update_layout(height=300)
+            
+            st.plotly_chart(fig4, use_container_width=True)
+        
+        # Tableau récapitulatif
+        st.markdown("### 📋 Récapitulatif")
+        
+        recap_data = {
+            'Métrique': ['Total examens', 'Heures totales', 'Responsable', 'Surveillant', 'Durée moyenne'],
+            'Valeur': [
+                len(df_examens),
+                f"{df_examens['duree_minutes'].sum() / 60:.1f}h",
+                len(df_examens[df_examens['role'] == 'Responsable']),
+                len(df_examens[df_examens['role'] == 'Surveillant']),
+                f"{duree_moyenne:.1f} min"
+            ]
+        }
+        
+        st.dataframe(pd.DataFrame(recap_data), use_container_width=True, hide_index=True)
+    else:
+        st.info("📊 Aucune donnée statistique disponible pour cette période.")
 
 elif selected_menu == "📤 Export":
     st.markdown("### 📤 Export du Planning")
     
-    # Options d'export
-    export_type = st.radio(
-        "Type d'export",
-        ["📋 Planning complet", "📅 Par période", "🎯 Par module"],
-        horizontal=True
-    )
+    with st.spinner("Préparation de l'export..."):
+        examens = get_examens_professeur_optimise(PROFESSEUR_ID, date_debut, date_fin)
     
-    col_exp1, col_exp2, col_exp3 = st.columns(3)
-    
-    with col_exp1:
-        format_export = st.selectbox(
-            "Format",
-            ["HTML (Web)", "CSV (Excel)", "PDF (Imprimable)", "JSON (Données)"]
+    if examens:
+        # Options d'export
+        export_type = st.radio(
+            "Type d'export",
+            ["📋 Planning complet", "📅 Par période", "🎯 Par module"],
+            horizontal=True
         )
-    
-    with col_exp2:
-        include_details = st.multiselect(
-            "Inclure",
-            ["Détails examen", "Salles", "Étudiants", "Statistiques"],
-            default=["Détails examen"]
-        )
-    
-    with col_exp3:
-        orientation = st.selectbox(
-            "Orientation",
-            ["Portrait", "Paysage"]
-        )
-    
-    # Aperçu
-    with st.expander("👁️ Aperçu de l'export"):
-        st.markdown(f"""
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px dashed #dee2e6;">
-            <div style="text-align: center; color: #6c757d;">
-                <div style="font-size: 3rem; margin-bottom: 10px;">📄</div>
-                <div style="font-weight: bold;">Aperçu de l'export</div>
-                <div style="margin-top: 10px;">
-                    <strong>Format:</strong> {format_export}<br>
-                    <strong>Période:</strong> {date_debut} au {date_fin}<br>
-                    <strong>Inclusions:</strong> {', '.join(include_details) if include_details else 'Aucune'}
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Boutons d'export
-    col_btn1, col_btn2, col_btn3 = st.columns(3)
-    
-    with col_btn1:
-        if st.button("📥 Exporter maintenant", use_container_width=True, type="primary"):
-            st.success("✅ Export généré avec succès !")
-    
-    with col_btn2:
-        if st.button("📧 Envoyer par email", use_container_width=True):
-            st.info("📧 Fonctionnalité d'envoi par email bientôt disponible")
-    
-    with col_btn3:
-        if st.button("🖨️ Imprimer", use_container_width=True):
-            st.info("🖨️ Fonctionnalité d'impression bientôt disponible")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+        
+        col_exp1, col_exp2, col_exp3 = st.columns(3)
+        
+        with col_exp1:
+            format_export = st.selectbox(
+                "Format",
+                ["CSV (Excel)", "HTML (Web)", "JSON (Données)"]
+            )
+        
+        with col_exp2:
+            include_details = st.multiselect(
+                "Inclure",
+                ["Détails examen", "Statut", "Rôle", "Session"],
+                default=["Détails examen", "Rôle"]
+            )
+        
+        # Conversion en DataFrame
+        df_export = pd.DataFrame(examens)
+        
+        # Aperçu
+        with st.expander("👁️ Aperçu des données"):
+            st.dataframe(
+                df_export[['date_examen', 'heure_debut', 'module', 'formation', 'role', 'statut']],
+                use_container_width=True,
+                hide_index=True
+            )
+        
+        # Boutons d'export
+        col_btn1, col_btn2 = st.columns(2)
+        
+        with col_btn1:
+            if st.button("📥 Télécharger CSV", use_container_width=True, type="primary"):
+                csv = df_export.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="💾 Cliquez pour télécharger",
+                    data=csv,
+                    file_name=f"planning_professeur_{prof['nom']}_{date_debut}_{date_fin}.csv",
+                    mime="text/csv",
+                    key="download_csv"
+                )
+        
+        with col_btn2:
+            if st.button("🌐 Générer HTML", use_container_width=True):
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Planning {prof['nom']}</title>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                        h1 {{ color: #2c3e50; }}
+                        table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                        th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }}
+                        th {{ background-color: #3498db; color: white; }}
+                        .responsable {{ background-color: #d4edda; }}
+                        .surveillant {{ background-color: #fff3cd; }}
+                    </style>
+                </head>
+                <body>
+                    <h1>📅 Planning d'Examens - {prof['prenom']} {prof['nom']}</h1>
+                    <p>Période: {date_debut} au {date_fin}</p>
+                    <p>Généré le: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+                    {df_export.to_html(index=False, classes='table')}
+                </body>
+                </html>
+                """
+                
+                st.download_button(
+                    label="💾 Télécharger HTML",
+                    data=html_content.encode('utf-8'),
+                    file_name=f"planning_professeur_{prof['nom']}.html",
+                    mime="text/html"
+                )
+    else:
+        st.info("📭 Aucun examen à exporter pour cette période.")
 
 elif selected_menu == "⚙️ Paramètres":
-    
     st.markdown("### ⚙️ Paramètres du Profil")
     
     # Formulaire de mise à jour
@@ -960,12 +1065,12 @@ elif selected_menu == "⚙️ Paramètres":
         with col_set1:
             nom = st.text_input("Nom", prof['nom'])
             prenom = st.text_input("Prénom", prof['prenom'])
-            email = st.text_input("Email", "professeur@universite.fr")
+            email = st.text_input("Email", f"{prof['prenom'].lower()}.{prof['nom'].lower()}@universite.fr")
         
         with col_set2:
             telephone = st.text_input("Téléphone", "+33 1 23 45 67 89")
             specialite = st.text_input("Spécialité", prof['specialite'])
-            heures_service = st.number_input("Heures de service", value=int(prof['heures_service']))
+            heures_service = st.number_input("Heures de service", value=int(prof['heures_service']), min_value=0, max_value=100)
         
         # Préférences
         st.markdown("### 🔔 Préférences de notification")
@@ -994,9 +1099,9 @@ elif selected_menu == "⚙️ Paramètres":
             cancel = st.form_submit_button("❌ Annuler")
         
         if submit:
+            # Ici, vous pourriez ajouter la logique pour mettre à jour la base de données
             st.success("✅ Paramètres mis à jour avec succès !")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+            st.cache_data.clear()  # Effacer le cache pour recharger les données
 
 # === FOOTER ===
 st.markdown("""
@@ -1018,7 +1123,7 @@ st.markdown("""
         </div>
     </div>
     <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ecf0f1; font-size: 0.8rem;">
-        © 2024 Système de Planification des Examens • Version 2.0 • 
+        © 2024-2026 Système de Planification des Examens • Version Optimisée • 
         <span style="color: #3498db;">{}</span>
     </div>
 </div>
