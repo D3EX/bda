@@ -461,7 +461,7 @@ def main():
         height: 350px;
     }}
     
-.hero-image {
+.hero-image {{
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -469,7 +469,7 @@ def main():
     background-image: url("/young-muslim-student-class.jpg");   /* ← key change */
     background-size: cover;
     background-position: center;
-}
+}}
     
     .hero-stats {{
         display: grid;
