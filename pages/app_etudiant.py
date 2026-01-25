@@ -157,31 +157,30 @@ def wait_for_secrets(timeout=10):
 def get_connection():
     if "conn" not in st.session_state:
 
+        # Check secrets
         if "mysql" not in st.secrets:
-            st.error("Secrets not loaded.")
+            st.error("Secrets not loaded. Please check Streamlit Secrets.")
             st.stop()
 
         cfg = st.secrets["mysql"]
 
         try:
-             st.session_state.conn = mysql.connector.connect(
+            st.session_state.conn = mysql.connector.connect(
                 host=cfg["host"],
                 port=int(cfg["port"]),
                 user=cfg["user"],
                 password=cfg["password"],
                 database=cfg["database"],
-                ssl_ca="skysql-ca.pem",
-                ssl_verify_cert=True,
+                ssl_disabled=True,  # <--- Important: disable SSL verification
                 autocommit=True
-              )
-
+            )
         except Error as e:
             st.write("MySQL ERROR:", str(e))
             st.stop()
 
     return st.session_state.conn
 
-
+# Initialize connection
 conn = get_connection()
 
 
