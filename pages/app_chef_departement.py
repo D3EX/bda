@@ -1346,13 +1346,19 @@ with st.sidebar:
     # Période d'analyse avec limites
     st.markdown('<div style="font-weight: 600; color: #1a237e; margin-bottom: 1rem;">📅 Période d\'analyse</div>', unsafe_allow_html=True)
     
-    date_debut = st.date_input("Date début", datetime.now())
-    
-    # Limiter la période pour éviter les requêtes trop lourdes
-    max_date = date_debut + timedelta(days=60)
-    date_fin = st.date_input("Date fin", min_value=date_debut, 
-                           max_value=max_date, 
-                           value=date_debut + timedelta(days=30))
+date_debut = st.date_input("Date début", value=date(2025, 1, 1))
+
+# Set min and max for the end date to be in 2025-2026
+min_end_date = date(2025, 1, 1)
+max_end_date = date(2026, 12, 31)
+
+# Date fin input
+date_fin = st.date_input(
+    "Date fin",
+    min_value=min_end_date,
+    max_value=max_end_date,
+    value=date_debut + timedelta(days=30)  # default value
+)
     
     # Afficher la durée
     delta = (date_fin - date_debut).days
