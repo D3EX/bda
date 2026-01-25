@@ -7,8 +7,6 @@ import time
 from datetime import datetime
 import base64
 import sqlite3     
-# Configuration de la page
-import streamlit as st
 import os
 
 image_path = r"young-muslim-student-class.jpg"
