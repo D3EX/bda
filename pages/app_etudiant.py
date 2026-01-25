@@ -1,4 +1,5 @@
-# app_etudiant.py
+# app_etudiant.py - Version corrigée
+
 import streamlit as st
 import pandas as pd
 import mysql.connector
@@ -141,42 +142,34 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-import streamlit as st
-import mysql.connector
-import time
-
-def wait_for_secrets(timeout=10):
-    start = time.time()
-    while "mysql" not in st.secrets:
-        if time.time() - start > timeout:
-            st.error("Secrets not loaded. Restart the app from Streamlit Cloud.")
-            st.stop()
-        time.sleep(0.3)
-
+# Fonction pour obtenir la connexion à la base de données
 def get_connection():
-    if "conn" not in st.session_state:
-        wait_for_secrets()
-
-        cfg = st.secrets["mysql"]
-
-        st.session_state.conn = mysql.connector.connect(
-            host=cfg["host"],
-            port=int(cfg["port"]),
-            database=cfg["database"],
-            user=cfg["user"],
-            password=cfg["password"],
-            autocommit=True
-        )
-
-    return st.session_state.conn
-
-
-conn = get_connection()
-
+    """Établit une connexion à la base de données MySQL"""
+    try:
+        # Utiliser les secrets Streamlit
+        config = {
+            'host': st.secrets["mysql"]["host"],
+            'port': int(st.secrets["mysql"]["port"]),
+            'database': st.secrets["mysql"]["database"],
+            'user': st.secrets["mysql"]["user"],
+            'password': st.secrets["mysql"]["password"]
+        }
+        
+        conn = mysql.connector.connect(**config)
+        return conn
+    except Exception as e:
+        st.error(f"Erreur de connexion à la base de données: {e}")
+        return None
 
 # Fonction pour exécuter les requêtes SQL
-def run_query(query, conn, params=None, fetch=True):
+def run_query(query, params=None, fetch=True):
+    """Exécute une requête SQL avec gestion d'erreurs"""
+    conn = None
     try:
+        conn = get_connection()
+        if conn is None:
+            return None
+            
         cursor = conn.cursor(dictionary=True)
         if params:
             cursor.execute(query, params)
@@ -186,26 +179,23 @@ def run_query(query, conn, params=None, fetch=True):
         if fetch:
             result = cursor.fetchall()
             cursor.close()
+            conn.close()
             return result
         else:
             conn.commit()
             cursor.close()
+            conn.close()
             return True
     except Error as e:
         st.error(f"Erreur SQL: {e}")
+        if conn:
+            conn.close()
         return None
 
 # Fonctions pour les étudiants
-def get_departements(conn):
+def get_departements():
     """Récupère tous les départements"""
-    return run_query("SELECT DISTINCT id, nom FROM departements ORDER BY nom", conn)
-
-# Initialize connection
-conn = get_connection()
-
-# Use the function
-departements = get_departements(conn)
-
+    return run_query("SELECT DISTINCT id, nom FROM departements ORDER BY nom")
 
 def get_formations_par_departement(dept_id):
     """Récupère les formations d'un département spécifique"""
@@ -223,8 +213,8 @@ def get_examens_formation(formation_id, date_debut, date_fin):
         SELECT DISTINCT
             e.id,
             e.date_examen,
-            TIME_FORMAT(e.heure_debut, '%H:%i') as heure_debut,  # ADD THIS
-            TIME_FORMAT(e.heure_fin, '%H:%i') as heure_fin,      # ADD THIS
+            TIME_FORMAT(e.heure_debut, '%H:%i') as heure_debut,
+            TIME_FORMAT(e.heure_fin, '%H:%i') as heure_fin,
             e.duree_minutes,
             e.session,
             m.nom as module,
@@ -255,7 +245,7 @@ if 'selected_dept_id' not in st.session_state:
 if 'selected_formation_id' not in st.session_state:
     st.session_state.selected_formation_id = None
 
-# Sidebar pour les filtres - VERSION CORRIGÉE
+# Sidebar pour les filtres
 with st.sidebar:
     # En-tête stylée unique
     st.markdown("""
@@ -338,7 +328,7 @@ with st.sidebar:
                     selected_formation_id = formation_id
                     break
     
-    # Section période - UNE SEULE FOIS
+    # Section période
     st.markdown('<hr style="margin: 1.5rem 0; border: none; height: 1px; background: linear-gradient(90deg, transparent, #667eea, transparent);">', unsafe_allow_html=True)
     
     st.markdown("**📅 Période de Recherche**")
@@ -416,7 +406,8 @@ with st.sidebar:
             debut=date_debut.strftime('%d/%m/%Y'),
             fin=date_fin.strftime('%d/%m/%Y')
         ), unsafe_allow_html=True)
-        col_act1, col_act2 = st.columns(2)
+    
+    col_act1, col_act2 = st.columns(2)
     with col_act1:
         if st.button("EXIT", use_container_width=True):
             for key in list(st.session_state.keys()):
@@ -555,13 +546,6 @@ if examens:
             lambda x: f"🏫 {x['salle']}\n({x['type_salle']})", 
             axis=1
         )
-        
-        # Fonction de coloration pour la session
-        def color_session(session):
-            if session == 'Normale':
-                return 'background-color: #2ecc71; color: white; padding: 4px 8px; border-radius: 12px;'
-            else:
-                return 'background-color: #e67e22; color: white; padding: 4px 8px; border-radius: 12px;'
         
         # Afficher le tableau stylisé
         st.dataframe(
@@ -734,6 +718,7 @@ if examens:
                     <td><strong>{exam['module']}</strong><br>{exam['credits']} crédits</td>
                     <td>{exam['professeur']}</td>
                     <td>{exam['salle']}<br><small>{exam['type_salle']}</small></td>
+                    <td>{exam['nb_etudiants']}</td>
                     <td><span class="{session_class}">{exam['session']}</span></td>
                 </tr>
             """
