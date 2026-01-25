@@ -672,7 +672,6 @@ def main():
         # Login form
         with st.form("login_form", clear_on_submit=True):
             # User ID field with animation
-            st.markdown('<span class="custom-label">IDENTIFIANT UTILISATEUR</span>', unsafe_allow_html=True)
             user_id = st.number_input(
                 "ID Utilisateur",
                 min_value=1,
@@ -683,8 +682,7 @@ def main():
             )
             
             # Password field with animation
-            st.markdown('<span class="custom-label">MOT DE PASSE</span>', unsafe_allow_html=True)
-            password = st.text_input(
+              password = st.text_input(
                 "Mot de passe",
                 type="password",
                 key="password",
