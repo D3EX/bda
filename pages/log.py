@@ -396,31 +396,7 @@ def main():
         text-transform: uppercase;
     }
 
-    /* Input fields */
-    .stTextInput > div > div,
-    .stNumberInput > div > div {
-        background: white !important;
-        border: 2px solid var(--border) !important;
-        border-radius: 14px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-
-    .stTextInput > div > div:focus-within,
-    .stNumberInput > div > div:focus-within {
-        border-color: var(--accent-gold) !important;
-        box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.15) !important;
-        transform: translateY(-2px);
-    }
-
-    .stTextInput input,
-    .stNumberInput input {
-        height: 52px !important;
-        border-radius: 14px !important;
-        padding: 14px 18px !important;
-        font-size: 15px !important;
-        font-family: 'Inter', sans-serif !important;
-        color: var(--text-primary) !important;
-    }
+   
 
     input:focus-visible {
         outline: none !important;
