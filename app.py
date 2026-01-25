@@ -1,15 +1,251 @@
-# app.py - Page d'accueil avec image et emojis académiques
+# app.py - Page d'accueil avec image et emojis académiques - VERSION OPTIMISÉE
 import streamlit as st
 import mysql.connector
 from mysql.connector import Error
 import pandas as pd
-import time
 from datetime import datetime
 import base64
 import sqlite3     
 import os
 
-image_path = r"young-muslim-student-class.jpg"
+# ============================================
+# FONCTIONS CACHÉES POUR PERFORMANCE
+# ============================================
+
+@st.cache_resource(ttl=3600)
+def get_db_connection():
+    """Connexion MySQL mise en cache"""
+    try:
+        connection = mysql.connector.connect(
+            host=st.secrets.get("DB_HOST", "localhost"),
+            database=st.secrets.get("DB_NAME", "exam_system"),
+            user=st.secrets.get("DB_USER", "root"),
+            password=st.secrets.get("DB_PASSWORD", ""),
+            pool_name="exampool",
+            pool_size=3
+        )
+        return connection
+    except Error as e:
+        # Retourne None pour permettre le fallback
+        return None
+
+@st.cache_resource
+def get_sqlite_connection():
+    """Connexion SQLite mise en cache"""
+    try:
+        conn = sqlite3.connect('local_data.db', check_same_thread=False)
+        return conn
+    except Exception:
+        return None
+
+@st.cache_data
+def get_base64_image():
+    """Image encodée en base64 mise en cache"""
+    image_path = "young-muslim-student-class.jpg"
+    try:
+        if os.path.exists(image_path):
+            with open(image_path, "rb") as img_file:
+                base64_img = base64.b64encode(img_file.read()).decode()
+            return f"data:image/jpeg;base64,{base64_img}"
+        else:
+            # Image placeholder académique en base64
+            return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+CjxwYXRoIGQ9Ik00MDAgMTAwQzIzMCAxMDAgMTAwIDIzMCAxMDAgNDAwQzEwMCA1NzAgMjMwIDcwMCA0MDAgNzAwQzU3MCA3MDAgNzAwIDU3MCA3MDAgNDAwQzcwMCAyMzAgNTcwIDEwMCA0MDAgMTAwWiIgZmlsbD0iIzAwMjE0NyIvPgo8cGF0aCBkPSJNMjAwIDIwMEwzMDAgMzAwTDIwMCA0MDBIMTAwVjMwMEgxMDBWMjAwSDIwVjMwMEgyMFY0MDBIMTBWNTBIMjBWMjAwWiIgZmlsbD0iI2Q0YTg1MyIvPgo8L3N2Zz4K"
+    except Exception:
+        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+Cjwvc3ZnPg=="
+
+@st.cache_data
+def get_academic_stats():
+    """Statistiques académiques mises en cache"""
+    # Données par défaut (fallback si DB indisponible)
+    default_stats = {
+        "departments": 12,
+        "programs": 28,
+        "teachers": 245,
+        "students": 13000,
+        "modules": 186,
+        "classrooms": 42
+    }
+    
+    connection = get_db_connection()
+    if not connection:
+        return default_stats
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        stats = {}
+        
+        # Optimisé: requêtes simples avec COUNT
+        queries = [
+            ("departments", "SELECT COUNT(*) as count FROM departments WHERE status = 'active'"),
+            ("programs", "SELECT COUNT(*) as count FROM programs WHERE is_active = 1"),
+            ("teachers", "SELECT COUNT(*) as count FROM teachers WHERE is_active = 1"),
+            ("students", "SELECT COUNT(*) as count FROM students WHERE enrollment_status = 'active'"),
+            ("modules", "SELECT COUNT(*) as count FROM modules WHERE is_active = 1"),
+            ("classrooms", "SELECT COUNT(*) as count FROM classrooms WHERE is_exam_ready = 1")
+        ]
+        
+        for key, query in queries:
+            cursor.execute(query)
+            result = cursor.fetchone()
+            stats[key] = result['count'] if result and result['count'] else default_stats[key]
+        
+        cursor.close()
+        return stats
+        
+    except Exception:
+        return default_stats
+    finally:
+        if connection and connection.is_connected():
+            pass  # La connexion est poolée, ne pas la fermer
+
+@st.cache_data
+def get_academic_emojis():
+    """Dictionnaire d'emojis mis en cache"""
+    return {
+        "system": "📚",
+        "dashboard": "📊",
+        "calendar": "📅",
+        "teacher": "👨‍🏫",
+        "student": "👨‍🎓",
+        "department": "🏛️",
+        "module": "📖",
+        "classroom": "🏫",
+        "exam": "✍️",
+        "schedule": "⏱️",
+        "admin": "🔧",
+        "dean": "🎖️",
+        "coordinator": "🤝",
+        "security": "🔒",
+        "ai": "🤖",
+        "mobile": "📱",
+        "stats": "📈",
+        "report": "📋",
+        "notification": "🔔",
+        "export": "📤",
+        "import": "📥",
+        "settings": "⚙️",
+        "help": "❓",
+        "time": "🕒",
+        "location": "📍",
+        "email": "📧",
+        "phone": "📞",
+        "university": "🎓",
+        "graduation": "🎓",
+        "diploma": "📜",
+        "research": "🔬",
+        "library": "📚",
+        "computer": "💻",
+        "cloud": "☁️",
+        "database": "🗄️",
+        "network": "🌐",
+        "analytics": "📊",
+        "quality": "⭐",
+        "innovation": "💡",
+        "collaboration": "👥",
+        "success": "✅",
+        "warning": "⚠️",
+        "error": "❌",
+        "loading": "⏳",
+        "check": "✓",
+        "arrow": "→",
+        "refresh": "🔄",
+        "search": "🔍",
+        "filter": "🔎",
+        "sort": "↕️",
+        "download": "⬇️",
+        "upload": "⬆️",
+        "print": "🖨️",
+        "save": "💾",
+        "edit": "✏️",
+        "delete": "🗑️",
+        "add": "➕",
+        "remove": "➖",
+        "view": "👁️",
+        "hide": "👁️‍🗨️",
+        "lock": "🔐",
+        "unlock": "🔓",
+        "key": "🔑",
+        "home": "🏠",
+        "back": "↩️",
+        "forward": "↪️",
+        "up": "⬆️",
+        "down": "⬇️",
+        "left": "⬅️",
+        "right": "➡️",
+        "menu": "☰",
+        "close": "✕",
+        "info": "ℹ️",
+        "question": "❔",
+        "exclamation": "❗",
+        "star": "★",
+        "heart": "❤️",
+        "flag": "🏁",
+        "trophy": "🏆",
+        "medal": "🥇",
+        "certificate": "📜",
+        "book": "📘",
+        "notebook": "📓",
+        "pen": "🖊️",
+        "paper": "📄",
+        "clipboard": "📋",
+        "folder": "📁",
+        "archive": "🗃️",
+        "bell": "🔔",
+        "megaphone": "📣",
+        "speech": "💬",
+        "thought": "💭",
+        "money": "💰",
+        "budget": "💵",
+        "growth": "📈",
+        "decline": "📉",
+        "stable": "📊",
+        "target": "🎯",
+        "goal": "🥅",
+        "plan": "🗺️",
+        "strategy": "♟️",
+        "team": "👨‍👩‍👧‍👦",
+        "meeting": "👥",
+        "presentation": "📽️",
+        "video": "📹",
+        "audio": "🎧",
+        "image": "🖼️",
+        "link": "🔗",
+        "attachment": "📎",
+        "zip": "🗜️",
+        "code": "💻",
+        "bug": "🐛",
+        "feature": "✨",
+        "update": "🔄",
+        "version": "🏷️",
+        "release": "🚀",
+        "launch": "🎆",
+        "celebration": "🎉",
+        "party": "🥳",
+        "confetti": "🎊",
+        "clock": "🕰️",
+        "watch": "⌚",
+        "alarm": "⏰",
+        "timer": "⏲️",
+        "stopwatch": "⏱️",
+        "calendar_day": "📆",
+        "date": "📅",
+        "event": "📅",
+        "reminder": "🗓️",
+        "deadline": "⏳",
+        "urgent": "🚨",
+        "important": "‼️",
+        "priority": "🔥",
+        "critical": "💥",
+        "normal": "🟢",
+        "low": "🟡",
+        "medium": "🟠",
+        "high": "🔴",
+    }
+
+# ============================================
+# CONFIGURATION DE LA PAGE
+# ============================================
+
 st.set_page_config(
     page_title="My Page",
     page_icon="🎓",
@@ -17,7 +253,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Hide Streamlit default UI elements
+# ============================================
+# STYLE CSS (IDENTIQUE À L'ORIGINAL)
+# ============================================
+
 hide_streamlit_style = """
     <style>
         /* Cache la navigation */
@@ -39,169 +278,19 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# ============================================
+# FONCTION PRINCIPALE OPTIMISÉE
+# ============================================
 
-# Encodage base64 d'une image universitaire par défaut (placeholder)
-def get_base64_image():
-    try:
-        # Vérifie si l'image existe
-        if os.path.exists(image_path):
-            with open(image_path, "rb") as img_file:
-                base64_img = base64.b64encode(img_file.read()).decode()
-            return f"data:image/jpeg;base64,{base64_img}"
-        else:
-            # Fallback si l'image n'existe pas
-            st.warning(f"Image non trouvée à l'emplacement: {image_path}")
-            # Image placeholder académique en base64 (petite version)
-            return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+CjxwYXRoIGQ9Ik00MDAgMTAwQzIzMCAxMDAgMTAwIDIzMCAxMDAgNDAwQzEwMCA1NzAgMjMwIDcwMCA0MDAgNzAwQzU3MCA3MDAgNzAwIDU3MCA3MDAgNDAwQzcwMCAyMzAgNTcwIDEwMCA0MDAgMTAwWiIgZmlsbD0iIzAwMjE0NyIvPgo8cGF0aCBkPSJNMjAwIDIwMEwzMDAgMzAwTDIwMCA0MDBIMTAwVjMwMEgxMDBWMjAwSDIwVjMwMEgyMFY0MDBIMTBWNTBIMjBWMjAwWiIgZmlsbD0iI2Q0YTg1MyIvPgo8L3N2Zz4K"
-    except Exception as e:
-        st.error(f"Erreur de chargement d'image: {e}")
-        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+Cjwvc3ZnPg=="
-
-# Emojis académiques professionnels
-ACADEMIC_EMOJIS = {
-    "system": "📚",  # Livres pour système
-    "dashboard": "📊",  # Graphiques
-    "calendar": "📅",  # Calendrier
-    "teacher": "👨‍🏫",  # Professeur
-    "student": "👨‍🎓",  # Étudiant diplômé
-    "department": "🏛️",  # Bâtiment institutionnel
-    "module": "📖",  # Livre ouvert
-    "classroom": "🏫",  # École
-    "exam": "✍️",  # Main écrivant
-    "schedule": "⏱️",  # Minuterie
-    "admin": "🔧",  # Outil
-    "dean": "🎖️",  # Médaille
-    "coordinator": "🤝",  # Poignée de main
-    "security": "🔒",  
-    "ai": "🤖",  # Robot
-    "mobile": "📱",  # Smartphone
-    "stats": "📈",  # Graphique croissant
-    "report": "📋",  # Liste
-    "notification": "🔔",  # Cloche
-    "export": "📤",  # Flèche sortante
-    "import": "📥",  # Flèche entrante
-    "settings": "⚙️",  # Engrenage
-    "help": "❓",  # Point d'interrogation
-    "time": "🕒",  # Horloge
-    "location": "📍",  # Épingle de carte
-    "email": "📧",  # Enveloppe
-    "phone": "📞",  # Téléphone
-    "university": "🎓",  # Mortier de diplômé
-    "graduation": "🎓",  # Mortier
-    "diploma": "📜",  # Parchemin
-    "research": "🔬",  # Microscope
-    "library": "📚",  # Livres
-    "computer": "💻",  # Ordinateur portable
-    "cloud": "☁️",  # Nuage
-    "database": "🗄️",  # Fichier
-    "network": "🌐",  # Globe
-    "analytics": "📊",  # Tableau de bord
-    "quality": "⭐",  # Étoile
-    "innovation": "💡",  # Ampoule
-    "collaboration": "👥",  # Silhouettes
-    "success": "✅",  # Coches
-    "warning": "⚠️",  # Attention
-    "error": "❌",  # Croix
-    "loading": "⏳",  # Sablier
-    "check": "✓",  # Check
-    "arrow": "→",  # Flèche
-    "refresh": "🔄",  # Flèches circulaires
-    "search": "🔍",  # Loupe
-    "filter": "🔎",  # Loupe avec zoom
-    "sort": "↕️",  # Flèches haut/bas
-    "download": "⬇️",  # Flèche bas
-    "upload": "⬆️",  # Flèche haut
-    "print": "🖨️",  # Imprimante
-    "save": "💾",  # Disquette
-    "edit": "✏️",  # Crayon
-    "delete": "🗑️",  # Corbeille
-    "add": "➕",  # Plus
-    "remove": "➖",  # Moins
-    "view": "👁️",  # Œil
-    "hide": "👁️‍🗨️",  # Œil barré
-    "lock": "🔐",  # Cadenas fermé
-    "unlock": "🔓",  # Cadenas ouvert
-    "key": "🔑",  # Clé
-    "home": "🏠",  # Maison
-    "back": "↩️",  # Flèche retour
-    "forward": "↪️",  # Flèche avant
-    "up": "⬆️",  # Flèche haut
-    "down": "⬇️",  # Flèche bas
-    "left": "⬅️",  # Flèche gauche
-    "right": "➡️",  # Flèche droite
-    "menu": "☰",  # Menu hamburger
-    "close": "✕",  # Croix
-    "info": "ℹ️",  # Information
-    "question": "❔",  # Point d'interrogation
-    "exclamation": "❗",  # Point d'exclamation
-    "star": "★",  # Étoile pleine
-    "heart": "❤️",  # Cœur
-    "flag": "🏁",  # Drapeau
-    "trophy": "🏆",  # Trophée
-    "medal": "🥇",  # Médaille or
-    "certificate": "📜",  # Certificat
-    "book": "📘",  # Livre bleu
-    "notebook": "📓",  # Cahier
-    "pen": "🖊️",  # Stylo
-    "paper": "📄",  # Page
-    "clipboard": "📋",  # Presse-papier
-    "folder": "📁",  # Dossier
-    "archive": "🗃️",  # Boîte d'archives
-    "bell": "🔔",  # Cloche
-    "megaphone": "📣",  # Mégaphone
-    "speech": "💬",  # Bulle de dialogue
-    "thought": "💭",  # Bulle de pensée
-    "money": "💰",  # Sac d'argent
-    "budget": "💵",  # Billet
-    "growth": "📈",  # Croissance
-    "decline": "📉",  # Déclin
-    "stable": "📊",  # Stable
-    "target": "🎯",  # Cible
-    "goal": "🥅",  # But de football
-    "plan": "🗺️",  # Carte
-    "strategy": "♟️",  # Pion d'échecs
-    "team": "👨‍👩‍👧‍👦",  # Famille
-    "meeting": "👥",  # Réunion
-    "presentation": "📽️",  # Projecteur
-    "video": "📹",  # Caméra
-    "audio": "🎧",  # Casque
-    "image": "🖼️",  # Cadre photo
-    "link": "🔗",  # Chaîne
-    "attachment": "📎",  # Trombone
-    "zip": "🗜️",  # Pince
-    "code": "💻",  # Code
-    "bug": "🐛",  # Insecte
-    "feature": "✨",  # Étincelles
-    "update": "🔄",  # Mise à jour
-    "version": "🏷️",  # Étiquette
-    "release": "🚀",  # Fusée
-    "launch": "🎆",  # Feux d'artifice
-    "celebration": "🎉",  # Confettis
-    "party": "🥳",  # Visage fêtard
-    "confetti": "🎊",  # Confettis ballon
-    "clock": "🕰️",  # Horloge murale
-    "watch": "⌚",  # Montre
-    "alarm": "⏰",  # Réveil
-    "timer": "⏲️",  # Minuteur
-    "stopwatch": "⏱️",  # Chronomètre
-    "calendar_day": "📆",  # Calendrier du jour
-    "date": "📅",  # Date
-    "event": "📅",  # Événement
-    "reminder": "🗓️",  # Calendrier avec date
-    "deadline": "⏳",  # Échéance
-    "urgent": "🚨",  # Gyrophare
-    "important": "‼️",  # Double exclamation
-    "priority": "🔥",  # Feu
-    "critical": "💥",  # Explosion
-    "normal": "🟢",  # Cercle vert
-    "low": "🟡",  # Cercle jaune
-    "medium": "🟠",  # Cercle orange
-    "high": "🔴",  # Cercle rouge
-}
-
-# Page d'accueil
 def main():
-    # Style CSS personnalisé - Design académique professionnel
+    # ================================
+    # PHASE 1: RENDU INSTANTANÉ DU UI
+    # ================================
+    
+    # Chargement des données mises en cache
+    ACADEMIC_EMOJIS = get_academic_emojis()
+    
+    # STYLE CSS COMPLET (identique à l'original)
     st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -1241,7 +1330,8 @@ def main():
  
     </style>
     """, unsafe_allow_html=True)
-    # Navigation Bar
+    
+    # Barre de navigation (rendu instantané)
     current_date = datetime.now().strftime("%d/%m/%Y")
     current_time = datetime.now().strftime("%H:%M")
     
@@ -1272,8 +1362,9 @@ def main():
         </div>
     </div>
     """, unsafe_allow_html=True)
-    # Hero Section avec image universitaire
-       # Hero Section avec image universitaire
+    
+    # Hero Section avec image mise en cache
+    cached_image = get_base64_image()
     st.markdown(f"""
     <div class="hero-container">
         <div class="hero-content">
@@ -1312,28 +1403,38 @@ def main():
             </div>
         </div>
         <div class="hero-image-container">
-            <div class="hero-image" style="background: url('{get_base64_image()}') center/cover no-repeat;"></div>
+            <div class="hero-image" style="background: url('{cached_image}') center/cover no-repeat;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-     # Modified columns layout for two buttons
+    # Boutons de navigation (rendu instantané)
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
     
     with col2:
         if st.button(f"Voir Planning", use_container_width=True, type="secondary"):
-            st.switch_page("pages/app_etudiant.py")  # Or your planning page
+            st.switch_page("pages/app_etudiant.py")
     
     with col4:
         if st.button(f"Connexion", use_container_width=True, type="primary"):
             st.switch_page("pages/log.py")
     
-    # Statistiques principales
+    # ================================
+    # PHASE 2: CHARGEMENT DES DONNÉES
+    # ================================
+    
+    # Section titre (rendu instantané)
     st.markdown(f'<h2 class="section-title">{ACADEMIC_EMOJIS["dashboard"]} Tableau de Bord Global</h2>', unsafe_allow_html=True)
     
+    # Container pour les statistiques (sera rempli plus tard)
+    stats_container = st.container()
+    
+    # Chargement des statistiques (avec cache)
     with st.spinner("Chargement des statistiques académiques..."):
-        time.sleep(0.5)
-        
+        stats = get_academic_stats()
+    
+    # Remplissage du container avec les statistiques
+    with stats_container:
         # Formater les grands nombres
         def format_number(num):
             if num >= 1000:
@@ -1344,44 +1445,44 @@ def main():
         <div class="stats-grid">
             <div class="stat-card-academic">
                 <div class="stat-icon-academic">{ACADEMIC_EMOJIS['department']}</div>
-                <div class="stat-number-academic">12<span class="stat-suffix-academic">+</span></div>
+                <div class="stat-number-academic">{format_number(stats.get('departments', 12))}<span class="stat-suffix-academic">+</span></div>
                 <div class="stat-label-academic">Départements Actifs</div>
                 <div class="stat-description">Filières académiques en activité</div>
             </div>
             <div class="stat-card-academic">
                 <div class="stat-icon-academic">{ACADEMIC_EMOJIS['graduation']}</div>
-                <div class="stat-number-academic">28<span class="stat-suffix-academic"></span></div>
+                <div class="stat-number-academic">{format_number(stats.get('programs', 28))}<span class="stat-suffix-academic"></span></div>
                 <div class="stat-label-academic">Formations Diplômantes</div>
                 <div class="stat-description">Programmes de formation accrédités</div>
             </div>
             <div class="stat-card-academic">
                 <div class="stat-icon-academic">{ACADEMIC_EMOJIS['teacher']}</div>
-                <div class="stat-number-academic">245<span class="stat-suffix-academic"></span></div>
+                <div class="stat-number-academic">{format_number(stats.get('teachers', 245))}<span class="stat-suffix-academic"></span></div>
                 <div class="stat-label-academic">Enseignants-Chercheurs</div>
                 <div class="stat-description">Corps professoral qualifié</div>
             </div>
             <div class="stat-card-academic">
                 <div class="stat-icon-academic">{ACADEMIC_EMOJIS['student']}</div>
-                <div class="stat-number-academic">13000<span class="stat-suffix-academic"></span></div>
+                <div class="stat-number-academic">{format_number(stats.get('students', 13000))}<span class="stat-suffix-academic"></span></div>
                 <div class="stat-label-academic">Étudiants Inscrits</div>
                 <div class="stat-description">Effectif étudiant actuel</div>
             </div>
             <div class="stat-card-academic">
                 <div class="stat-icon-academic">{ACADEMIC_EMOJIS['module']}</div>
-                <div class="stat-number-academic">186<span class="stat-suffix-academic"></span></div>
+                <div class="stat-number-academic">{format_number(stats.get('modules', 186))}<span class="stat-suffix-academic"></span></div>
                 <div class="stat-label-academic">Unités d'Enseignement</div>
                 <div class="stat-description">Modules pédagogiques actifs</div>
             </div>
             <div class="stat-card-academic">
                 <div class="stat-icon-academic">{ACADEMIC_EMOJIS['classroom']}</div>
-                <div class="stat-number-academic">42<span class="stat-suffix-academic"></span></div>
+                <div class="stat-number-academic">{format_number(stats.get('classrooms', 42))}<span class="stat-suffix-academic"></span></div>
                 <div class="stat-label-academic">Salles d'Examen</div>
                 <div class="stat-description">Amphithéâtres et salles équipées</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
     
-    # Fonctionnalités principales
+    # Fonctionnalités (rendu instantané - contenu statique)
     st.markdown(f'<h2 class="section-title">{ACADEMIC_EMOJIS["feature"]} Fonctionnalités Avancées</h2>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
@@ -1437,7 +1538,7 @@ def main():
         </div>
         """, unsafe_allow_html=True)
     
-    # Espaces personnalisés
+    # Espaces personnalisés (rendu instantané)
     st.markdown(f'<h2 class="section-title">{ACADEMIC_EMOJIS["collaboration"]} Espaces Personnalisés</h2>', unsafe_allow_html=True)
     
     roles_col1, roles_col2, roles_col3, roles_col4 = st.columns(4)
@@ -1498,7 +1599,7 @@ def main():
         </div>
         """, unsafe_allow_html=True)
     
-    # CTA Section
+    # CTA Section (rendu instantané)
     st.markdown(f"""
     <div class="cta-section-academic">
         <h2 class="cta-title-academic">Prêt à optimiser vos examens ?</h2>
@@ -1509,10 +1610,7 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Bouton de connexion principal
-   
- 
-    # FOOTER - Placez-le ici, à l'intérieur de la fonction main()
+    # Footer (rendu instantané)
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #0a1429, #002147);
@@ -1528,7 +1626,10 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-# Cette ligne doit rester en dehors de la fonction main()
+# ============================================
+# EXÉCUTION PRINCIPALE
+# ============================================
+
 if __name__ == "__main__":
     main()
 
