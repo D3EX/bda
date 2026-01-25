@@ -1317,10 +1317,9 @@ departement_nom = departement_info['nom']
 
 with st.sidebar:
     # En-tête sidebar
-    st.markdown('<div class="sidebar-header">', unsafe_allow_html=True)
     st.markdown('<div class="user-avatar">👨‍💼</div>', unsafe_allow_html=True)
-    st.markdown(f'<h3 style="color: white; margin-bottom: 5px;">{st.session_state.nom_complet}</h3>', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: white; margin: 0; font-size: 14px;">Chef de Département</p>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: black; margin-bottom: 5px;">{st.session_state.nom_complet}</h3>', unsafe_allow_html=True)
+    st.markdown(f'<p style="color: black; margin: 0; font-size: 14px;">Chef de Département</p>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("---")
