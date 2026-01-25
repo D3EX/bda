@@ -1,4 +1,4 @@
-# pages/app_chef_departement.py - Version optimisée pour la performance
+# pages/app_chef_departement.py - Version avec période 2025-2026
 import streamlit as st
 import pandas as pd
 import mysql.connector
@@ -12,7 +12,6 @@ from decimal import Decimal
 import os
 import toml
 import time
-from functools import wraps
 
 # Configuration de la page
 st.set_page_config(
@@ -449,7 +448,6 @@ def get_examens_departement_optimise(dept_id, date_debut, date_fin):
         WHERE f.dept_id = %s
         AND e.date_examen BETWEEN %s AND %s
         ORDER BY e.date_examen, e.heure_debut
-        LIMIT 1000  -- Limiter les résultats pour la performance
     """
     return run_query(query, (dept_id, date_debut, date_fin))
 
@@ -471,7 +469,6 @@ def get_statistiques_validation_departement(dept_id, date_debut, date_fin):
         GROUP BY f.id
         HAVING total_examens > 0
         ORDER BY f.nom
-        LIMIT 20
     """
     result = run_query(query, (dept_id, date_debut, date_fin))
     
@@ -494,7 +491,6 @@ def get_professeurs_departement_simple(dept_id):
         FROM professeurs p
         WHERE p.dept_id = %s
         ORDER BY p.nom, p.prenom
-        LIMIT 50
     """
     return run_query(query, (dept_id,))
 
@@ -508,7 +504,6 @@ def get_formations_departement_simple(dept_id):
         FROM formations f
         WHERE f.dept_id = %s
         ORDER BY f.nom
-        LIMIT 20
     """
     return run_query(query, (dept_id,))
 
@@ -530,7 +525,6 @@ def get_occupation_salles_departement_simple(dept_id, date_debut, date_fin):
         WHERE f.dept_id = %s
         GROUP BY le.id
         ORDER BY le.type, le.nom
-        LIMIT 30
     """
     return run_query(query, (date_debut, date_fin, dept_id))
 
@@ -1235,7 +1229,7 @@ def render_planning_departement():
             df_examens['date_examen'] = pd.to_datetime(df_examens['date_examen'])
             dates_uniques = sorted(df_examens['date_examen'].unique())
             
-            for date in dates_uniques[:10]:  # Limiter à 10 jours
+            for date in dates_uniques:  # Afficher toutes les dates
                 df_date = df_examens[df_examens['date_examen'] == date]
                 
                 with st.expander(f"📅 {date.strftime('%A %d %B %Y')} ({len(df_date)} examens)"):
@@ -1315,7 +1309,7 @@ DEPARTEMENT_ID = departement_info['id']
 departement_nom = departement_info['nom']
 
 # ============================================================================
-# SIDEBAR OPTIMISÉE
+# SIDEBAR AVEC PÉRIODE 2025-2026
 # ============================================================================
 
 with st.sidebar:
@@ -1343,30 +1337,29 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Période d'analyse avec limites
-    st.markdown('<div style="font-weight: 600; color: #1a237e; margin-bottom: 1rem;">📅 Période d\'analyse</div>', unsafe_allow_html=True)
+    # Période d'analyse limitée à 2025-2026
+    st.markdown('<div style="font-weight: 600; color: #1a237e; margin-bottom: 1rem;">📅 Période d\'analyse (2025-2026)</div>', unsafe_allow_html=True)
     
-date_debut = st.date_input("Date début", value=date(2025, 1, 1))
-
-# Set min and max for the end date to be in 2025-2026
-min_end_date = date(2025, 1, 1)
-max_end_date = date(2026, 12, 31)
-
-# Date fin input
-date_fin = st.date_input(
-    "Date fin",
-    min_value=min_end_date,
-    max_value=max_end_date,
-    value=date_debut + timedelta(days=30)  # default value
-)
+    # Définir les dates limites
+    min_date = datetime(2025, 1, 1).date()
+    max_date = datetime(2026, 12, 31).date()
+    
+    date_debut = st.date_input(
+        "Date début", 
+        value=datetime(2025, 1, 1).date(),
+        min_value=min_date,
+        max_value=max_date
+    )
+    
+    date_fin = st.date_input(
+        "Date fin", 
+        value=datetime(2026, 6, 30).date(),
+        min_value=date_debut,
+        max_value=max_date
+    )
     
     # Afficher la durée
     delta = (date_fin - date_debut).days
-    if delta > 60:
-        st.warning(f"⚠️ Période limitée à 60 jours pour la performance")
-        date_fin = date_debut + timedelta(days=60)
-        delta = 60
-    
     st.caption(f"**Durée:** {delta} jours")
     
     st.markdown("---")
@@ -1402,7 +1395,7 @@ with col_title:
         <div style="font-size: 32px;">👨‍💼</div>
         <div>
             <h1 style="margin: 0; color: #1a237e;">Tableau de Bord Chef de Département</h1>
-            <p style="margin: 0; color: #666; font-size: 14px;">Gestion stratégique du département {departement_nom}</p>
+            <p style="margin: 0; color: #666; font-size: 14px;">Gestion stratégique du département {departement_nom} - Année scolaire 2025-2026</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1451,7 +1444,7 @@ st.markdown(f"""
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <div style="font-weight: 600; color: #1a237e; margin-bottom: 5px;">Tableau de Bord Chef de Département • {departement_nom}</div>
-            <div style="color: #666; font-size: 11px;">Version Optimisée • Performance améliorée</div>
+            <div style="color: #666; font-size: 11px;">Année Scolaire 2025-2026 • Version Complète</div>
         </div>
         <div style="text-align: right;">
             <div style="color: #666; font-size: 11px;">Période: {date_debut} au {date_fin}</div>
