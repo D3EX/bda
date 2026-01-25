@@ -42,17 +42,29 @@ def get_sqlite_connection():
 def get_base64_image():
     """Image encodée en base64 mise en cache"""
     image_path = "young-muslim-student-class.jpg"
+
     try:
         if os.path.exists(image_path):
             with open(image_path, "rb") as img_file:
                 base64_img = base64.b64encode(img_file.read()).decode()
             return f"data:image/jpeg;base64,{base64_img}"
-        else:
-            # Image placeholder académique en base64
-            return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+CjxwYXRoIGQ9Ik00MDAgMTAwQzIzMCAxMDAgMTAwIDIzMCAxMDAgNDAwQzEwMCA1NzAgMjMwIDcwMCA0MDAgNzAwQzU3MCA3MDAgNzAwIDU3MCA3MDAgNDAwQzcwMCAyMzAgNTcwIDEwMCA0MDAgMTAwWiIgZmlsbD0iIzAwMjE0NyIvPgo8cGF0aCBkPSJNMjAwIDIwMEwzMDAgMzAwTDIwMCA0MDBIMTAwVjMwMEgxMDBWMjAwSDIwVjMwMEgyMFY0MDBIMTBWNTBIMjBWMjAwWiIgZmlsbD0iI2Q0YTg1MyIvPgo8L3N2Zz4K"
-    except Exception:
-        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+Cjwvc3ZnPg=="
 
+        # 🔹 Placeholder SVG si l’image n’existe pas
+        placeholder_svg = """
+        <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+            <rect width="800" height="600" fill="#0f1729"/>
+            <circle cx="400" cy="300" r="120" fill="#002147"/>
+            <text x="400" y="320" font-size="40" text-anchor="middle" fill="#d4a853">
+                Image non trouvée
+            </text>
+        </svg>
+        """
+        base64_svg = base64.b64encode(placeholder_svg.encode()).decode()
+        return f"data:image/svg+xml;base64,{base64_svg}"
+
+    except Exception as e:
+        print("Erreur image:", e)
+        return ""
 @st.cache_data
 def get_academic_stats():
     """Statistiques académiques mises en cache"""
@@ -1632,4 +1644,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
