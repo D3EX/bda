@@ -33,23 +33,33 @@ html, body, .stApp {
 """, unsafe_allow_html=True)
 
 # Database connection
-@st.cache_resource
-def init_connection():
-    try:
-        conn = mysql.connector.connect(
-            host=st.secrets["mysql"]["host"],
-            port=st.secrets["mysql"]["port"],  # important!
-            database=st.secrets["mysql"]["database"],
-            user=st.secrets["mysql"]["user"],
-            password=st.secrets["mysql"]["password"]
-        )
-        return conn
-    except Error as e:
-        st.error(f"Erreur de connexion à la base de données: {e}")
-        return None
+import streamlit as st
+import mysql.connector
+from mysql.connector import Error
+
+def get_connection():
+    if "conn" not in st.session_state:
+        try:
+            cfg = st.secrets["mysql"]
+
+            st.session_state.conn = mysql.connector.connect(
+                host=cfg["host"],
+                port=int(cfg["port"]),
+                database=cfg["database"],
+                user=cfg["user"],
+                password=cfg["password"],
+                autocommit=True
+            )
+
+        except Error as e:
+            st.error(f"Erreur DB : {e}")
+            st.stop()
+
+    return st.session_state.conn
 
 
-conn = init_connection()
+conn = get_connection()
+
 
 def run_query(query, params=None, fetch=True):
     try:
