@@ -184,7 +184,7 @@ def get_connection():
 
 
 # Fonction pour exécuter les requêtes SQL
-def run_query(query, params=None, fetch=True):
+def run_query(query, conn, params=None, fetch=True):
     try:
         cursor = conn.cursor(dictionary=True)
         if params:
@@ -205,9 +205,16 @@ def run_query(query, params=None, fetch=True):
         return None
 
 # Fonctions pour les étudiants
-def get_departements():
+def get_departements(conn):
     """Récupère tous les départements"""
-    return run_query("SELECT DISTINCT id, nom FROM departements ORDER BY nom")
+    return run_query("SELECT DISTINCT id, nom FROM departements ORDER BY nom", conn)
+
+# Initialize connection
+conn = get_connection()
+
+# Use the function
+departements = get_departements(conn)
+
 
 def get_formations_par_departement(dept_id):
     """Récupère les formations d'un département spécifique"""
