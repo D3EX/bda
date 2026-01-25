@@ -39,32 +39,13 @@ def get_sqlite_connection():
         return None
 
 @st.cache_data
-def get_base64_image():
-    """Image encodée en base64 mise en cache"""
-    image_path = "young-muslim-student-class.jpg"
-
-    try:
-        if os.path.exists(image_path):
-            with open(image_path, "rb") as img_file:
-                base64_img = base64.b64encode(img_file.read()).decode()
-            return f"data:image/jpeg;base64,{base64_img}"
-
-        # 🔹 Placeholder SVG si l’image n’existe pas
-        placeholder_svg = """
-        <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-            <rect width="800" height="600" fill="#0f1729"/>
-            <circle cx="400" cy="300" r="120" fill="#002147"/>
-            <text x="400" y="320" font-size="40" text-anchor="middle" fill="#d4a853">
-                Image non trouvée
-            </text>
-        </svg>
-        """
-        base64_svg = base64.b64encode(placeholder_svg.encode()).decode()
-        return f"data:image/svg+xml;base64,{base64_svg}"
-
-    except Exception as e:
-        print("Erreur image:", e)
-        return ""
+def get_hero_image_path():
+    original = "young-muslim-student-class.jpg"
+    if os.path.exists(original):
+        return original
+    # fallback placeholder (small SVG is fine)
+    return None  # or keep your small SVG as string
+    
 @st.cache_data
 def get_academic_stats():
     """Statistiques académiques mises en cache"""
@@ -480,12 +461,15 @@ def main():
         height: 350px;
     }}
     
-    .hero-image {{
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: linear-gradient(135deg, var(--navy), var(--navy-light));
-    }}
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--navy), var(--navy-light));
+    background-image: url("/young-muslim-student-class.jpg");   /* ← key change */
+    background-size: cover;
+    background-position: center;
+}
     
     .hero-stats {{
         display: grid;
