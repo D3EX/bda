@@ -11,7 +11,8 @@ import io
 from decimal import Decimal
 import os
 import toml
-import time
+from datetime import time
+
 
 # Configuration de la page
 st.set_page_config(
