@@ -1419,7 +1419,8 @@ st.markdown("---")
 
 # Afficher un indicateur de chargement pour les pages lourdes
 if menu in ["✅ Validation EDT", "📊 Statistiques Département"]:
-
+    with st.spinner("Chargement des données..."):
+        time_module.sleep(0.5)  # Petite pause pour montrer le spinner
 if menu == "🏠 Tableau de Bord":
     render_tableau_de_bord()
     
