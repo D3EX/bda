@@ -141,10 +141,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Fonction de connexion à MySQL
 import streamlit as st
 import mysql.connector
-from mysql.connector import Error
+import time
 
 def wait_for_secrets(timeout=10):
     start = time.time()
@@ -154,33 +153,25 @@ def wait_for_secrets(timeout=10):
             st.stop()
         time.sleep(0.3)
 
-import streamlit as st
-import mysql.connector
-from mysql.connector import Error
-
 def get_connection():
     if "conn" not in st.session_state:
+        wait_for_secrets()
+
         cfg = st.secrets["mysql"]
-        try:
-            st.session_state.conn = mysql.connector.connect(
-                host=cfg["host"],
-                port=int(cfg["port"]),
-                user=cfg["user"],
-                password=cfg["password"],
-                database=cfg["database"],
-                ssl_disabled=True,  # no certificate needed
-                autocommit=True
-            )
-        except Error as e:
-            st.error(f"MySQL ERROR: {e}")
-            st.stop()
+
+        st.session_state.conn = mysql.connector.connect(
+            host=cfg["host"],
+            port=int(cfg["port"]),
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=True
+        )
+
     return st.session_state.conn
 
-# Initialize connection
+
 conn = get_connection()
-
-
-
 
 
 # Fonction pour exécuter les requêtes SQL
