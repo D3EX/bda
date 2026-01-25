@@ -164,15 +164,17 @@ def get_connection():
         cfg = st.secrets["mysql"]
 
         try:
-            st.session_state.conn = mysql.connector.connect(
+             st.session_state.conn = mysql.connector.connect(
                 host=cfg["host"],
                 port=int(cfg["port"]),
                 user=cfg["user"],
                 password=cfg["password"],
                 database=cfg["database"],
-                ssl_disabled=False,
+                ssl_ca="skysql-ca.pem",
+                ssl_verify_cert=True,
                 autocommit=True
-            )
+              )
+
         except Error as e:
             st.write("MySQL ERROR:", str(e))
             st.stop()
