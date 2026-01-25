@@ -154,16 +154,13 @@ def wait_for_secrets(timeout=10):
             st.stop()
         time.sleep(0.3)
 
+import streamlit as st
+import mysql.connector
+from mysql.connector import Error
+
 def get_connection():
     if "conn" not in st.session_state:
-
-        # Check secrets
-        if "mysql" not in st.secrets:
-            st.error("Secrets not loaded. Please check Streamlit Secrets.")
-            st.stop()
-
         cfg = st.secrets["mysql"]
-
         try:
             st.session_state.conn = mysql.connector.connect(
                 host=cfg["host"],
@@ -171,14 +168,17 @@ def get_connection():
                 user=cfg["user"],
                 password=cfg["password"],
                 database=cfg["database"],
-                ssl_disabled=True,  # <--- use this if no certificate
+                ssl_disabled=True,  # no certificate needed
                 autocommit=True
             )
         except Error as e:
-            st.write("MySQL ERROR:", str(e))
+            st.error(f"MySQL ERROR: {e}")
             st.stop()
-
     return st.session_state.conn
+
+# Initialize connection
+conn = get_connection()
+
 
 
 
