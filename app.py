@@ -656,7 +656,6 @@ def main():
                 <span>{current_date}</span>
             </div>
             <div class="nav-info-item">
-                <span>{ACADEMIC_EMOJIS['time']}</span>
                 <span>{current_time}</span>
             </div>
         </div>
