@@ -200,10 +200,10 @@ def main():
     }
 
     /* Main container */
-    .stApp {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%) !important;
-        font-family: 'Inter', sans-serif;
-    }
+.stApp {
+    background: #ffffff !important;
+}
+
 
     @media (prefers-color-scheme: dark) {
         .stApp {
