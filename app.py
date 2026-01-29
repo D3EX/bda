@@ -1260,19 +1260,7 @@ def main():
  
     </style>
     """, unsafe_allow_html=True)# Hero Section
-hero_image_path = "young-muslim-student-class.jpg"
 
-hero_image_html = ""
-if os.path.exists(hero_image_path):
-    # Use normal file path, no base64
-    hero_image_html = f"""
-    <div class="hero-image-container">
-        <img class="hero-image" src="{hero_image_path}" />
-    </div>
-    """
-else:
-    hero_image_html = "<div style='color:red'>Image non trouvée</div>"
-    
     # Navigation Bar
     current_date = datetime.now().strftime("%d/%m/%Y")
     current_time = datetime.now().strftime("%H:%M")
@@ -1344,8 +1332,7 @@ else:
             </div>
         </div>
         <div class="hero-image-container">
-        {hero_image_html} 
-</div>
+        <div class="hero-image" style="background: url('{get_base64_image()}') center/cover no-repeat;"></div></div>
     </div>
     """, unsafe_allow_html=True)
     
