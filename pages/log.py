@@ -786,26 +786,7 @@ def main():
                             ❌ **Échec de l'authentification**  
                             Veuillez vérifier vos identifiants et réessayer.
                             """)
-        
-        # Footer
-        st.markdown("""
-        <div class="auth-footer">
-            <div class="footer-links">
-                <a href="#" onclick="alert('Support technique: support@examenspro.edu'); return false;">
-                    💻 Aide
-                </a>
-                <a href="#" onclick="alert('Politique de confidentialité'); return false;">
-                    🔒 Confidentialité
-                </a>
-                <a href="#" onclick="alert('Conditions générales'); return false;">
-                    📄 Conditions
-                </a>
-            </div>
-            <div class="version">Version 2.1.4 | © 2024 ExamensPro</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
