@@ -250,7 +250,7 @@ def main():
         position: relative;
         overflow: hidden;
         border-radius: 24px 0 0 24px;
-        height: 700px;      
+        height: 500px;      
                     }
 
     .hero-section::before {
@@ -268,7 +268,7 @@ def main():
     .hero-content {
         position: relative;
         z-index: 1;
-        max-width: 90%;
+        max-width: 10%;
     }
 
     .hero-icon {
