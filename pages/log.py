@@ -229,7 +229,7 @@ def main():
     /* Login card */
     .login-card {
         background: white;
-        width: 100px;
+        width: 300px;
         max-width: 80vw;
         box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.95);
