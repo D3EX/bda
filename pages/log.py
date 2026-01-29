@@ -250,7 +250,8 @@ def main():
         position: relative;
         overflow: hidden;
         border-radius: 24px 0 0 24px;
-        height: 700px;      
+        height: 700px; 
+        width: 400px;
                     }
 
     .hero-section::before {
