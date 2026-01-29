@@ -52,9 +52,7 @@ hide_streamlit_style = """
     [data-testid="collapsedControl"] {
         display: none !important;
     }
-
     
-    /* Optional: remove padding around the page */
 /* Center whole page content */
 .main .block-container {
     max-width: 1000px !important;   /* 🔥 largeur globale */
@@ -79,6 +77,7 @@ hide_streamlit_style = """
 body {
     background: #f8fafc !important;
 }
+
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -201,14 +200,10 @@ def main():
     }
 
     /* Main container */
-/* Full page center */
-.stApp {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
+    .stApp {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%) !important;
+        font-family: 'Inter', sans-serif;
+    }
 
     @media (prefers-color-scheme: dark) {
         .stApp {
@@ -232,18 +227,17 @@ def main():
     }
 
     /* Login card */
-.login-card {
-    width: 850px;        /* 🔥 card width */
-    height: 520px;       /* 🔥 card height */
-    max-width: 95vw;     /* responsive */
-    max-height: 95vh;
-    border-radius: 22px;
-    box-shadow: 0 25px 70px rgba(10,20,41,0.15);
-    overflow: hidden;
-    display: flex;
-    background: white;
-}
-
+    .login-card {
+        background: white;
+        width: 100px;
+        max-width: 80vw;
+        box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        overflow: hidden;
+        display: flex;
+        min-height: 650px;
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
     @keyframes fadeInUp {
         from {
@@ -257,28 +251,19 @@ def main():
     }
 
     /* Hero section */
-.hero-section {
-       flex: 1;
-    padding: 35px 30px;
-    background: linear-gradient(135deg, var(--primary-dark) 0%, #15203d 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-/* Center a fixed container */
-.main-wrapper {
-    width: 900px;        /* 🔥 controls total login width */
-    max-width: 95vw;
-    margin: auto;
-}
-
-/* Prevent Streamlit columns from stretching */
-[data-testid="column"] {
-    padding: 0 !important;
-}
+    .hero-section {
+        flex: 1.2;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+        padding: 50px 40px;
+        display: flex;
+        flex-direction:;
+        justify-content: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px 0 0 24px;
+        height: 700px;      
+                    }
 
     .hero-section::before {
         content: '';
@@ -832,3 +817,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
