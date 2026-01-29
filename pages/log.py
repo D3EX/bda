@@ -249,6 +249,17 @@ def main():
     position: relative;
     overflow: hidden;
 }
+/* Center a fixed container */
+.main-wrapper {
+    width: 900px;        /* 🔥 controls total login width */
+    max-width: 95vw;
+    margin: auto;
+}
+
+/* Prevent Streamlit columns from stretching */
+[data-testid="column"] {
+    padding: 0 !important;
+}
 
     .hero-section::before {
         content: '';
