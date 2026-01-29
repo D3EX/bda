@@ -659,7 +659,7 @@ def main():
     # Login card container
     
     # Create two columns
-    col1, col2 = st.columns([1.2, 1])
+    col1, col2 = st.columns([1.4, 1.1])
     
     # HERO SECTION (Left Column)
     with col1:
