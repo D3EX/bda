@@ -742,10 +742,6 @@ def main():
                 <h1 class="hero-title">Système Intelligent de Gestion des Examens</h1>
                 <div class="features-list">
                     <div class="feature-item">
-                        <span class="feature-icon">✅</span>
-                        <span class="feature-text">Interface moderne et intuitive</span>
-                    </div>
-                    <div class="feature-item">
                         <span class="feature-icon">🔒</span>
                         <span class="feature-text">Sécurité et authentification renforcées</span>
                     </div>
