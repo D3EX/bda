@@ -68,6 +68,8 @@ hide_streamlit_style = """
     }
     </style>
 """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # Database connection
 import streamlit as st
 import mysql.connector
