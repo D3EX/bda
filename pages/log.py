@@ -212,14 +212,7 @@ def main():
     }
 
     /* Main container */
-    .main-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 80vh;
-        padding: 20px;
-        animation: fadeIn 0.8s ease-out;
-    }
+
 
     @keyframes fadeIn {
         from { opacity: 0; }
