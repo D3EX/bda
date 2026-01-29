@@ -205,7 +205,6 @@ def main():
         align-items: center;
         justify-content: center;
         min-height: 70vh;
-        min-width: 70vh;
         padding: 20px;
         animation: fadeIn 0.8s ease-out;
     }
@@ -251,7 +250,7 @@ def main():
         position: relative;
         overflow: hidden;
         border-radius: 24px 0 0 24px;
-        height: 500px;      
+        height: 700px;      
                     }
 
     .hero-section::before {
