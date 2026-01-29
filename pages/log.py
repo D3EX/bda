@@ -279,7 +279,7 @@ st.markdown("""
         justify-content: center;
         height: 100%;
         padding: 20px 30px;
-        margin-top:-20px;
+        margin-top:-30px;
     }
     
     /* Header */
