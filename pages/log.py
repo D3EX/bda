@@ -34,32 +34,30 @@ html, body, .stApp {
 # Dans votre section CSS, ajoutez ceci :
 hide_streamlit_style = """
     <style>
-        /* Cache la navigation */
-    [data-testid="stSidebarNav"] {
-        display: none;
-    }
-    /* Hide top menu and footer */
-    #MainMenu {display: none;}
-    footer {display: none;}
-    header {display: none;}
-    
-    /* Hide sidebar completely */
-    [data-testid="stSidebar"] {
-        display: none !important;
-    }
-    
-    /* Hide the sidebar toggle button */
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
+/* Center whole page content */
+.main .block-container {
+    max-width: 1000px !important;   /* 🔥 largeur globale */
+    margin: auto !important;        /* centre horizontal */
+    padding: 0 !important;
+}
 
-    
-    /* Optional: remove padding around the page */
-    .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
-    }
+/* Center vertically */
+.stApp {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Prevent columns from stretching */
+[data-testid="column"] {
+    padding: 0 !important;
+}
+
+/* Optional: background */
+body {
+    background: #f8fafc !important;
+}
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
