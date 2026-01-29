@@ -586,23 +586,6 @@ st.markdown("""
     z-index: 100;
 }
 
-.language-selector select {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 8px 12px;
-    padding-right: 30px;
-    border-radius: var(--radius-md);
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 16px;
-    transition: all 0.2s ease;
-}
 
 .language-selector select:hover {
     border-color: var(--accent-gold);
@@ -746,9 +729,6 @@ def get_user_role_info(role):
     return {'icon': '👤', 'desc': 'Utilisateur système'}
 
 def main():
-
-        # Main container
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
     # Login card
     col1, col2 = st.columns([1.2, 1], gap="small")
