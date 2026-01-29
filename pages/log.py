@@ -279,11 +279,11 @@ st.markdown("""
         justify-content: center;
         height: 100%;
         padding: 20px 30px;
+        margin-top:-20px;
     }
     
     /* Header */
     .auth-header {
-        margin-bottom: 30px;
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
     }
     
@@ -291,7 +291,6 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 20px;
     }
     
     .logo {
@@ -345,7 +344,6 @@ st.markdown("""
     .form-group {
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         opacity: 0;
-        margin-bottom: 20px;
     }
     
     .form-group:nth-child(1) { animation-delay: 0.3s; }
