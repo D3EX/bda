@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Combined CSS styles (removed duplicates)
+# Combined CSS styles with no scroll modifications
 st.markdown("""
 <style>
     /* Hide Streamlit UI elements */
@@ -32,19 +32,27 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Main layout */
+    /* Main layout - FIXED NO SCROLL */
     .main .block-container {
         padding: 0 !important;
         max-width: 1000px !important;
         margin: auto !important;
+        height: 100vh !important;
+        overflow: hidden !important;
     }
     
-    html, body, .stApp {
+    html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
         margin: 0 !important;
         padding: 0 !important;
         background-color: white !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
     }
     
     .stApp {
@@ -52,10 +60,20 @@ st.markdown("""
         justify-content: center;
         align-items: center;
         height: 100vh;
+        width: 100vw;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
     }
     
     [data-testid="column"] {
         padding: 0 !important;
+        height: 100% !important;
+    }
+    
+    /* Force full viewport height */
+    div[data-testid="column"] > div {
+        height: 100% !important;
     }
     
     /* Import fonts */
@@ -135,7 +153,7 @@ st.markdown("""
         100% { transform: scale(40, 40); opacity: 0; }
     }
     
-    /* Login card */
+    /* Login card - FIXED HEIGHT */
     .login-card {
         background: white;
         width: 300px;
@@ -144,15 +162,16 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.95);
         overflow: hidden;
         display: flex;
-        min-height: 650px;
+        height: 600px; /* Fixed height instead of min-height */
+        max-height: 95vh;
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     }
     
-    /* Hero section */
+    /* Hero section - FIXED HEIGHT */
     .hero-section {
         width: 100%;
-        min-height: 650px;
-        padding: 50px 40px;
+        height: 100%; /* Fixed height */
+        padding: 40px 30px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -178,26 +197,30 @@ st.markdown("""
     .hero-content {
         position: relative;
         z-index: 1;
-        max-width: 90%;
+        max-width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     
     .hero-icon {
-        width: 70px;
-        height: 70px;
+        width: 60px;
+        height: 60px;
         background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
-        border-radius: 18px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px;
-        margin-bottom: 30px;
+        font-size: 28px;
+        margin-bottom: 25px;
         box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
         animation: float 6s ease-in-out infinite;
     }
     
     .hero-title {
         font-family: 'Poppins', sans-serif;
-        font-size: 32px;
+        font-size: 26px;
         font-weight: 700;
         margin-bottom: 15px;
         line-height: 1.2;
@@ -209,29 +232,29 @@ st.markdown("""
     
     .hero-subtitle {
         font-family: 'Inter', sans-serif;
-        font-size: 16px;
+        font-size: 14px;
         opacity: 0.9;
-        margin-bottom: 40px;
-        line-height: 1.6;
+        margin-bottom: 30px;
+        line-height: 1.5;
     }
     
     .features-list {
         display: flex;
         flex-direction: column;
-        gap: 15px;
-        margin-top: 30px;
+        gap: 12px;
+        margin-top: 25px;
     }
     
     .feature-item {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        padding: 12px 18px;
+        font-size: 13px;
+        padding: 10px 15px;
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
-        border-radius: 12px;
+        border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.2);
         transition: all 0.3s ease;
     }
@@ -245,46 +268,48 @@ st.markdown("""
         content: '✓';
         color: var(--accent-gold);
         font-weight: bold;
-        font-size: 16px;
+        font-size: 14px;
     }
     
-    /* Form section */
+    /* Form section - FIXED HEIGHT */
     .form-section {
         flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        height: 100%;
+        padding: 20px 30px;
     }
     
     /* Header */
     .auth-header {
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
     }
     
     .branding {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 25px;
+        gap: 10px;
+        margin-bottom: 20px;
     }
     
     .logo {
-        width: 54px;
-        height: 54px;
+        width: 48px;
+        height: 48px;
         background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
-        border-radius: 14px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 22px;
         color: white;
         box-shadow: 0 8px 20px rgba(10, 20, 41, 0.2);
     }
     
     .brand-name {
         font-family: 'Poppins', sans-serif;
-        font-size: 26px;
+        font-size: 22px;
         font-weight: 700;
         color: var(--text-primary);
     }
@@ -292,17 +317,17 @@ st.markdown("""
     .beta-tag {
         background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
         color: var(--primary-dark);
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 20px;
-        margin-left: 10px;
+        padding: 3px 8px;
+        border-radius: 15px;
+        margin-left: 8px;
         letter-spacing: 0.5px;
     }
     
     .page-title {
         font-family: 'Poppins', sans-serif;
-        font-size: 32px;
+        font-size: 26px;
         font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 8px;
@@ -311,15 +336,16 @@ st.markdown("""
     
     .page-subtitle {
         font-family: 'Inter', sans-serif;
-        font-size: 15px;
+        font-size: 13px;
         color: var(--text-secondary);
-        line-height: 1.6;
+        line-height: 1.5;
     }
     
     /* Form styling */
     .form-group {
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         opacity: 0;
+        margin-bottom: 20px;
     }
     
     .form-group:nth-child(1) { animation-delay: 0.3s; }
@@ -327,7 +353,7 @@ st.markdown("""
     
     .custom-label {
         font-family: 'Poppins', sans-serif !important;
-        font-size: 13px !important;
+        font-size: 12px !important;
         font-weight: 600 !important;
         color: var(--text-primary) !important;
         letter-spacing: 0.5px !important;
@@ -346,24 +372,25 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+        margin: 20px 0;
     }
     
     .checkbox-container {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
     }
     
     .checkbox-container input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         accent-color: var(--accent-gold);
         cursor: pointer;
     }
     
     .checkbox-label {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
         color: var(--text-primary);
         cursor: pointer;
         user-select: none;
@@ -371,7 +398,7 @@ st.markdown("""
     
     .forgot-password {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
         color: var(--accent-gold);
         text-decoration: none;
         font-weight: 500;
@@ -387,13 +414,13 @@ st.markdown("""
     /* Login button */
     .stButton > button {
         width: 100% !important;
-        height: 56px !important;
+        height: 48px !important;
         background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%) !important;
         color: var(--primary-dark) !important;
         border: none !important;
-        border-radius: 14px !important;
+        border-radius: 12px !important;
         font-family: 'Poppins', sans-serif !important;
-        font-size: 16px !important;
+        font-size: 15px !important;
         font-weight: 600 !important;
         letter-spacing: 0.5px !important;
         box-shadow: 0 6px 20px rgba(212, 168, 83, 0.4) !important;
@@ -427,8 +454,8 @@ st.markdown("""
     
     /* Footer */
     .auth-footer {
-        margin-top: 30px;
-        padding-top: 25px;
+        margin-top: 25px;
+        padding-top: 20px;
         border-top: 1px solid var(--border);
         text-align: center;
         animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
@@ -437,13 +464,13 @@ st.markdown("""
     .footer-links {
         display: flex;
         justify-content: center;
-        gap: 25px;
-        margin-bottom: 15px;
+        gap: 20px;
+        margin-bottom: 12px;
     }
     
     .footer-links a {
         font-family: 'Inter', sans-serif;
-        font-size: 13px;
+        font-size: 12px;
         color: var(--text-secondary);
         text-decoration: none;
         transition: color 0.2s ease;
@@ -455,7 +482,7 @@ st.markdown("""
     
     .version {
         font-family: 'Inter', sans-serif;
-        font-size: 12px;
+        font-size: 11px;
         color: var(--text-secondary);
         opacity: 0.7;
     }
@@ -463,8 +490,8 @@ st.markdown("""
     /* Language selector */
     .language-selector {
         position: absolute;
-        top: 30px;
-        right: 30px;
+        top: 20px;
+        right: 20px;
     }
     
     .language-selector select {
@@ -483,17 +510,21 @@ st.markdown("""
     @media (max-width: 992px) {
         .login-card {
             flex-direction: column;
-            min-height: auto;
+            height: auto;
+            max-height: 90vh;
             width: 95%;
         }
         
         .hero-section {
-            padding: 40px 30px;
+            padding: 30px 25px;
             border-radius: 24px 24px 0 0;
+            height: auto;
+            min-height: 250px;
         }
         
         .form-section {
-            padding: 40px 30px;
+            padding: 30px 25px;
+            height: auto;
         }
         
         .hero-content {
@@ -503,20 +534,24 @@ st.markdown("""
     
     @media (max-width: 480px) {
         .page-title {
-            font-size: 26px;
+            font-size: 22px;
         }
         
         .hero-title {
-            font-size: 26px;
+            font-size: 22px;
         }
         
         .features-list {
-            gap: 10px;
+            gap: 8px;
         }
         
         .feature-item {
-            padding: 10px 15px;
-            font-size: 14px;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+        
+        .login-card {
+            max-height: 95vh;
         }
     }
     
@@ -531,11 +566,28 @@ st.markdown("""
         border-radius: 12px !important;
         border-left: none !important;
         animation: fadeInUp 0.4s ease-out;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* Ensure form elements don't overflow */
+    form {
+        max-height: 100% !important;
+        overflow: visible !important;
+    }
+    
+    /* Prevent any scrollbars */
+    * {
+        scrollbar-width: none !important;
+    }
+    
+    *::-webkit-scrollbar {
+        display: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Database connection functions
+# Database connection functions (same as before)
 def get_connection():
     if "conn" not in st.session_state:
         try:
@@ -594,7 +646,7 @@ def authenticate_user(user_id, password):
     return False
 
 def main():
-    # Create two columns
+    # Create two columns with specific heights
     col1, col2 = st.columns([1.4, 1])
     
     # HERO SECTION (Left Column)
@@ -606,11 +658,12 @@ def main():
                 <h1 class="hero-title">Système de Gestion des Examens</h1>
                 <p class="hero-subtitle">
                     Plateforme intelligente pour la planification, surveillance et évaluation 
-                    des examens universitaires. Accédez à tous vos outils en un seul endroit.
+                    des examens universitaires.
                 </p>
                 <div class="features-list">
                     <div class="feature-item">Interface intuitive et moderne</div>
                     <div class="feature-item">Sécurité et authentification renforcées</div>
+                    <div class="feature-item">Gestion centralisée des examens</div>
                 </div>
             </div>
         </div>
@@ -618,134 +671,143 @@ def main():
     
     # FORM SECTION (Right Column)
     with col2:
+        # Container for form section
+        st.markdown('<div class="form-section">', unsafe_allow_html=True)
+        
         st.markdown("""
-        <div class="form-section">
-            <div class="auth-header">
-                <div class="branding">
-                    <div class="logo">🔐</div>
-                    <div class="brand-name">ExamensPro</div>
-                    <div class="beta-tag">BETA</div>
-                </div>
-                <h1 class="page-title">Connexion Sécurisée</h1>
+        <div class="auth-header">
+            <div class="branding">
+                <div class="logo">🔐</div>
+                <div class="brand-name">ExamensPro</div>
+                <div class="beta-tag">BETA</div>
             </div>
+            <h1 class="page-title">Connexion Sécurisée</h1>
+            <p class="page-subtitle">Accédez à votre espace personnel</p>
+        </div>
         """, unsafe_allow_html=True)
         
-        # Login form
-        with st.form("login_form", clear_on_submit=True):
-            # User ID field
-            st.markdown('<span class="custom-label">IDENTIFIANT UTILISATEUR</span>', unsafe_allow_html=True)
-            user_id = st.number_input(
-                "ID Utilisateur",
-                min_value=1,
-                step=1,
-                key="user_id_input",
-                label_visibility="collapsed",
-                placeholder="Entrez votre identifiant unique"
-            )
-            
-            # Password field
-            st.markdown('<span class="custom-label">MOT DE PASSE</span>', unsafe_allow_html=True)
-            password = st.text_input(
-                "Mot de passe",
-                type="password",
-                key="password",
-                label_visibility="collapsed",
-                placeholder="••••••••••••"
-            )
-            
-            # Options row
-            st.markdown("""
-            <div class="options-row">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="remember" checked>
-                    <label for="remember" class="checkbox-label">Se souvenir de moi</label>
+        # Login form with fixed height container
+        with st.container():
+            with st.form("login_form", clear_on_submit=True):
+                # User ID field
+                st.markdown('<div class="form-group">', unsafe_allow_html=True)
+                st.markdown('<span class="custom-label">IDENTIFIANT UTILISATEUR</span>', unsafe_allow_html=True)
+                user_id = st.number_input(
+                    "ID Utilisateur",
+                    min_value=1,
+                    step=1,
+                    key="user_id_input",
+                    label_visibility="collapsed",
+                    placeholder="Entrez votre identifiant"
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Password field
+                st.markdown('<div class="form-group">', unsafe_allow_html=True)
+                st.markdown('<span class="custom-label">MOT DE PASSE</span>', unsafe_allow_html=True)
+                password = st.text_input(
+                    "Mot de passe",
+                    type="password",
+                    key="password",
+                    label_visibility="collapsed",
+                    placeholder="••••••••••••"
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Options row
+                st.markdown("""
+                <div class="options-row">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="remember" checked>
+                        <label for="remember" class="checkbox-label">Se souvenir</label>
+                    </div>
+                    <a class="forgot-password" href="#" onclick="alert('Contactez l\\'administrateur système pour réinitialiser votre mot de passe.'); return false;">
+                        Mot de passe oublié ?
+                    </a>
                 </div>
-                <a class="forgot-password" href="#" onclick="alert('Contactez l\\'administrateur système pour réinitialiser votre mot de passe.'); return false;">
-                    Mot de passe oublié ?
-                </a>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Login button
-            submit = st.form_submit_button("🔐 SE CONNECTER", type="primary", use_container_width=True)
-            
-            if submit:
-                if not user_id or not password:
-                    st.error("⛔ Veuillez remplir tous les champs obligatoires")
-                else:
-                    # Create a progress bar
-                    progress_bar = st.progress(0)
-                    status_text = st.empty()
-                    
-                    # Simulate loading with progress
-                    for percent in range(101):
-                        time.sleep(0.01)
-                        progress_bar.progress(percent)
-                        if percent < 30:
-                            status_text.text("🔍 Vérification des identifiants...")
-                        elif percent < 70:
-                            status_text.text("🔐 Authentification en cours...")
-                        elif percent < 90:
-                            status_text.text("👤 Chargement du profil...")
-                        else:
-                            status_text.text("✅ Connexion presque terminée...")
-                    
-                    # Clear progress elements
-                    progress_bar.empty()
-                    status_text.empty()
-                    
-                    # Authenticate
-                    if authenticate_user(int(user_id), password):
-                        # Success message with balloons
-                        st.success("""
-                        🎉 **Connexion réussie !**  
-                        Bienvenue dans le système de gestion des examens.
-                        """)
-                        st.balloons()
-                        
-                        # Show welcome message
-                        if 'nom_complet' in st.session_state:
-                            st.info(f"**👋 Bienvenue, {st.session_state['nom_complet']} !**")
-                        
-                        # Short delay before redirect
-                        time.sleep(1.5)
-                        
-                        # Redirect based on role
-                        role = st.session_state.get('role', '').lower()
-                        if 'professeur' in role:
-                            st.switch_page("pages/app_professeur.py")
-                        elif 'admin' in role:
-                            st.switch_page("pages/app_admin.py")
-                        elif 'doyen' in role:
-                            st.switch_page("pages/app_vice_doyen.py")
-                        elif 'chef' in role:
-                            st.switch_page("pages/app_chef_departement.py")
-                        else:
-                            st.switch_page("app.py")
+                """, unsafe_allow_html=True)
+                
+                # Login button
+                submit = st.form_submit_button("🔐 SE CONNECTER", type="primary", use_container_width=True)
+                
+                if submit:
+                    if not user_id or not password:
+                        st.error("⛔ Veuillez remplir tous les champs obligatoires")
                     else:
-                        st.error("""
-                        ❌ **Échec de l'authentification**  
-                        Veuillez vérifier vos identifiants et réessayer.
-                        """)
+                        # Create a progress bar
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+                        
+                        # Simulate loading with progress
+                        for percent in range(101):
+                            time.sleep(0.01)
+                            progress_bar.progress(percent)
+                            if percent < 30:
+                                status_text.text("🔍 Vérification...")
+                            elif percent < 70:
+                                status_text.text("🔐 Authentification...")
+                            elif percent < 90:
+                                status_text.text("👤 Chargement...")
+                            else:
+                                status_text.text("✅ Connexion...")
+                        
+                        # Clear progress elements
+                        progress_bar.empty()
+                        status_text.empty()
+                        
+                        # Authenticate
+                        if authenticate_user(int(user_id), password):
+                            # Success message
+                            st.success("""
+                            🎉 **Connexion réussie !**  
+                            Bienvenue dans le système de gestion des examens.
+                            """)
+                            st.balloons()
+                            
+                            # Show welcome message
+                            if 'nom_complet' in st.session_state:
+                                st.info(f"**👋 Bienvenue, {st.session_state['nom_complet']} !**")
+                            
+                            # Short delay before redirect
+                            time.sleep(1.5)
+                            
+                            # Redirect based on role
+                            role = st.session_state.get('role', '').lower()
+                            if 'professeur' in role:
+                                st.switch_page("pages/app_professeur.py")
+                            elif 'admin' in role:
+                                st.switch_page("pages/app_admin.py")
+                            elif 'doyen' in role:
+                                st.switch_page("pages/app_vice_doyen.py")
+                            elif 'chef' in role:
+                                st.switch_page("pages/app_chef_departement.py")
+                            else:
+                                st.switch_page("app.py")
+                        else:
+                            st.error("""
+                            ❌ **Échec de l'authentification**  
+                            Veuillez vérifier vos identifiants et réessayer.
+                            """)
         
         # Footer
         st.markdown("""
-        </div>
         <div class="auth-footer">
             <div class="footer-links">
-                <a href="#" onclick="alert('Support technique: support@examenspro.edu | Tél: +33 1 23 45 67 89'); return false;">
-                    💻 Aide & Support
+                <a href="#" onclick="alert('Support technique: support@examenspro.edu'); return false;">
+                    💻 Aide
                 </a>
-                <a href="#" onclick="alert('Politique de confidentialité et traitement des données'); return false;">
+                <a href="#" onclick="alert('Politique de confidentialité'); return false;">
                     🔒 Confidentialité
                 </a>
-                <a href="#" onclick="alert('Conditions générales d\\'utilisation'); return false;">
+                <a href="#" onclick="alert('Conditions générales'); return false;">
                     📄 Conditions
                 </a>
             </div>
             <div class="version">Version 2.1.4 | © 2024 ExamensPro</div>
         </div>
         """, unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
