@@ -11,87 +11,535 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Hide Streamlit UI
+# Combined CSS styles (removed duplicates)
 st.markdown("""
 <style>
-#MainMenu, footer, header, .stDeployButton, [data-testid="stToolbar"] {
-    display: none !important;
-    visibility: hidden !important;
-}
-.main .block-container {
-    padding: 0 !important;
-    max-width: 100% !important;
-}
-html, body, .stApp {
-    overflow: hidden !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-            background-color: white;
-}
-</style>
-""", unsafe_allow_html=True)
-# Dans votre section CSS, ajoutez ceci :
-hide_streamlit_style = """
-    <style>
-        /* Cache la navigation */
+    /* Hide Streamlit UI elements */
+    #MainMenu, footer, header, .stDeployButton, [data-testid="stToolbar"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
     [data-testid="stSidebarNav"] {
         display: none;
     }
-    /* Hide top menu and footer */
-    #MainMenu {display: none;}
-    footer {display: none;}
-    header {display: none;}
     
-    /* Hide sidebar completely */
     [data-testid="stSidebar"] {
         display: none !important;
     }
     
-    /* Hide the sidebar toggle button */
     [data-testid="collapsedControl"] {
         display: none !important;
     }
     
-/* Center whole page content */
-.main .block-container {
-    max-width: 1000px !important;   /* 🔥 largeur globale */
-    margin: auto !important;        /* centre horizontal */
-    padding: 0 !important;
-}
+    /* Main layout */
+    .main .block-container {
+        padding: 0 !important;
+        max-width: 1000px !important;
+        margin: auto !important;
+    }
+    
+    html, body, .stApp {
+        overflow: hidden !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: white !important;
+    }
+    
+    .stApp {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    
+    [data-testid="column"] {
+        padding: 0 !important;
+    }
+    
+    /* Import fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary-dark: #0a1429;
+        --primary-medium: #1e293b;
+        --accent-gold: #d4a853;
+        --accent-light: #fef3c7;
+        --success: #10b981;
+        --error: #ef4444;
+        --background: #f8fafc;
+        --surface: #ffffff;
+        --border: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+    }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary-dark: #f1f5f9;
+            --primary-medium: #cbd5e1;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --border: #475569;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+        
+        .login-card {
+            background: var(--surface) !important;
+        }
+        
+        .stTextInput > div > div,
+        .stNumberInput > div > div {
+            background: #2d3748 !important;
+            border-color: #4a5568 !important;
+        }
+        
+        .stTextInput input,
+        .stNumberInput input {
+            color: var(--text-primary) !important;
+            background: transparent !important;
+        }
+        
+        .stApp {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(5deg); }
+    }
+    
+    @keyframes ripple {
+        0% { transform: scale(0, 0); opacity: 0.5; }
+        100% { transform: scale(40, 40); opacity: 0; }
+    }
+    
+    /* Login card */
+    .login-card {
+        background: white;
+        width: 300px;
+        max-width: 90vw;
+        box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        overflow: hidden;
+        display: flex;
+        min-height: 650px;
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    /* Hero section */
+    .hero-section {
+        width: 100%;
+        min-height: 650px;
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        border-radius: 24px 0 0 24px;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(212, 168, 83, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 90%;
+    }
+    
+    .hero-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        line-height: 1.2;
+        background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .hero-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        opacity: 0.9;
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }
+    
+    .features-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        padding: 12px 18px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .feature-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateX(5px);
+    }
+    
+    .feature-item::before {
+        content: '✓';
+        color: var(--accent-gold);
+        font-weight: bold;
+        font-size: 16px;
+    }
+    
+    /* Form section */
+    .form-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    /* Header */
+    .auth-header {
+        margin-bottom: 40px;
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    }
+    
+    .branding {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+    
+    .logo {
+        width: 54px;
+        height: 54px;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        box-shadow: 0 8px 20px rgba(10, 20, 41, 0.2);
+    }
+    
+    .brand-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .beta-tag {
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
+        color: var(--primary-dark);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-left: 10px;
+        letter-spacing: 0.5px;
+    }
+    
+    .page-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        line-height: 1.2;
+    }
+    
+    .page-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+    
+    /* Form styling */
+    .form-group {
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        opacity: 0;
+    }
+    
+    .form-group:nth-child(1) { animation-delay: 0.3s; }
+    .form-group:nth-child(2) { animation-delay: 0.4s; }
+    
+    .custom-label {
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: var(--text-primary) !important;
+        letter-spacing: 0.5px !important;
+        display: block;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+    
+    input:focus-visible {
+        outline: none !important;
+    }
+    
+    /* Checkbox and forgot password */
+    .options-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+    }
+    
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .checkbox-container input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent-gold);
+        cursor: pointer;
+    }
+    
+    .checkbox-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: var(--text-primary);
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .forgot-password {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: var(--accent-gold);
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
+        color: var(--primary-dark);
+    }
+    
+    /* Login button */
+    .stButton > button {
+        width: 100% !important;
+        height: 56px !important;
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%) !important;
+        color: var(--primary-dark) !important;
+        border: none !important;
+        border-radius: 14px !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.4) !important;
+        transition: all 0.3s ease !important;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 12px 30px rgba(212, 168, 83, 0.5) !important;
+    }
+    
+    .stButton > button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
+    
+    .stButton > button:focus:not(:active)::after {
+        animation: ripple 1s ease-out;
+    }
+    
+    /* Footer */
+    .auth-footer {
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+    }
+    
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .footer-links a {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+        color: var(--accent-gold);
+    }
+    
+    .version {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+    
+    /* Language selector */
+    .language-selector {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+    }
+    
+    .language-selector select {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .login-card {
+            flex-direction: column;
+            min-height: auto;
+            width: 95%;
+        }
+        
+        .hero-section {
+            padding: 40px 30px;
+            border-radius: 24px 24px 0 0;
+        }
+        
+        .form-section {
+            padding: 40px 30px;
+        }
+        
+        .hero-content {
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 26px;
+        }
+        
+        .hero-title {
+            font-size: 26px;
+        }
+        
+        .features-list {
+            gap: 10px;
+        }
+        
+        .feature-item {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+    }
+    
+    /* Hide streamlit labels */
+    .stTextInput label,
+    .stNumberInput label {
+        display: none !important;
+    }
+    
+    /* Error/Success messages */
+    .stAlert {
+        border-radius: 12px !important;
+        border-left: none !important;
+        animation: fadeInUp 0.4s ease-out;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-/* Center vertically */
-.stApp {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* Prevent columns from stretching */
-[data-testid="column"] {
-    padding: 0 !important;
-}
-
-/* Optional: background */
-body {
-    background: #f8fafc !important;
-}
-
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# Database connection
-import streamlit as st
-import mysql.connector
-from mysql.connector import Error
-
+# Database connection functions
 def get_connection():
     if "conn" not in st.session_state:
         try:
             cfg = st.secrets["mysql"]
-
             st.session_state.conn = mysql.connector.connect(
                 host=cfg["host"],
                 port=int(cfg["port"]),
@@ -100,16 +548,12 @@ def get_connection():
                 password=cfg["password"],
                 autocommit=True
             )
-
         except Error as e:
             st.error(f"Erreur DB : {e}")
             st.stop()
-
     return st.session_state.conn
 
-
 conn = get_connection()
-
 
 def run_query(query, params=None, fetch=True):
     try:
@@ -149,509 +593,7 @@ def authenticate_user(user_id, password):
         return True
     return False
 
-
 def main():
-    # Main CSS for the improved design
-    st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
-    :root {
-        --primary-dark: #0a1429;
-        --primary-medium: #1e293b;
-        --accent-gold: #d4a853;
-        --accent-light: #fef3c7;
-        --success: #10b981;
-        --error: #ef4444;
-        --background: #f8fafc;
-        --surface: #ffffff;
-        --border: #e2e8f0;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
-    }
-
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --primary-dark: #f1f5f9;
-            --primary-medium: #cbd5e1;
-            --background: #0f172a;
-            --surface: #1e293b;
-            --border: #475569;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-        }
-        
-        .login-card {
-            background: var(--surface) !important;
-        }
-        
-        .stTextInput > div > div,
-        .stNumberInput > div > div {
-            background: #2d3748 !important;
-            border-color: #4a5568 !important;
-        }
-        
-        .stTextInput input,
-        .stNumberInput input {
-            color: var(--text-primary) !important;
-            background: transparent !important;
-        }
-    }
-
-    /* Main container */
-.stApp {
-    background: #ffffff !important;
-}
-
-
-    @media (prefers-color-scheme: dark) {
-        .stApp {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
-        }
-    }
-
-    /* Main container */
-
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    /* Login card */
-    .login-card {
-        background: white;
-        width: 300px;
-        max-width: 90vw;
-        box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.95);
-        overflow: hidden;
-        display: flex;
-        min-height: 650px;
-        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Hero section */
-.hero-section {
-    width: 100%;                  /* 🔥 fits Streamlit column */
-    min-height: 650px;            /* keeps it tall */
-    padding: 50px 40px;
-    display: flex;
-    flex-direction: column;       /* FIXED (you had empty value before) */
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    color: white;
-    border-radius: 24px 0 0 24px;
-
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
-}
-
-    .hero-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 20% 80%, rgba(212, 168, 83, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 1;
-        max-width: 90%;
-    }
-
-    .hero-icon {
-        width: 70px;
-        height: 70px;
-        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
-        animation: float 6s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-10px) rotate(5deg); }
-    }
-
-    .hero-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 15px;
-        line-height: 1.2;
-        background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .hero-subtitle {
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        opacity: 0.9;
-        margin-bottom: 40px;
-        line-height: 1.6;
-    }
-
-    .features-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 30px;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        padding: 12px 18px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .feature-item:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateX(5px);
-    }
-
-    .feature-item::before {
-        content: '✓';
-        color: var(--accent-gold);
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-    /* Form section */
-    .form-section {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        
-    }
-
-    /* Header */
-    .auth-header {
-        margin-bottom: 40px;
-        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-    }
-
-    .branding {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 25px;
-    }
-
-    .logo {
-        width: 54px;
-        height: 54px;
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        color: white;
-        box-shadow: 0 8px 20px rgba(10, 20, 41, 0.2);
-    }
-
-    .brand-name {
-        font-family: 'Poppins', sans-serif;
-        font-size: 26px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .beta-tag {
-        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
-        color: var(--primary-dark);
-        font-size: 11px;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 20px;
-        margin-left: 10px;
-        letter-spacing: 0.5px;
-    }
-
-    .page-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 32px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 8px;
-        line-height: 1.2;
-    }
-
-    .page-subtitle {
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        color: var(--text-secondary);
-        line-height: 1.6;
-    }
-
-    /* Form styling */
-    .form-group {
-       ;
-        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        opacity: 0;
-    }
-
-    .form-group:nth-child(1) { animation-delay: 0.3s; }
-    .form-group:nth-child(2) { animation-delay: 0.4s; }
-
-    .custom-label {
-        font-family: 'Poppins', sans-serif !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        color: var(--text-primary) !important;
-        letter-spacing: 0.5px !important;
-        display: block;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-    }
-
-   
-
-    input:focus-visible {
-        outline: none !important;
-    }
-
-    /* Checkbox and forgot password */
-    .options-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
-    }
-
-    .checkbox-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .checkbox-container input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: var(--accent-gold);
-        cursor: pointer;
-    }
-
-    .checkbox-label {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: var(--text-primary);
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .forgot-password {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: var(--accent-gold);
-        text-decoration: none;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .forgot-password:hover {
-        text-decoration: underline;
-        color: var(--primary-dark);
-    }
-
-    /* Login button */
-    .stButton > button {
-        width: 100% !important;
-        height: 56px !important;
-        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%) !important;
-        color: var(--primary-dark) !important;
-        border: none !important;
-        border-radius: 14px !important;
-        font-family: 'Poppins', sans-serif !important;
-        font-size: 16px !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.5px !important;
-        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.4) !important;
-        transition: all 0.3s ease !important;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stButton > button:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 12px 30px rgba(212, 168, 83, 0.5) !important;
-    }
-
-    .stButton > button::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 5px;
-        height: 5px;
-        background: rgba(255, 255, 255, 0.5);
-        opacity: 0;
-        border-radius: 100%;
-        transform: scale(1, 1) translate(-50%);
-        transform-origin: 50% 50%;
-    }
-
-    .stButton > button:focus:not(:active)::after {
-        animation: ripple 1s ease-out;
-    }
-
-    @keyframes ripple {
-        0% { transform: scale(0, 0); opacity: 0.5; }
-        100% { transform: scale(40, 40); opacity: 0; }
-    }
-
-    /* Footer */
-    .auth-footer {
-        margin-top: 30px;
-        padding-top: 25px;
-        border-top: 1px solid var(--border);
-        text-align: center;
-        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
-    }
-
-    .footer-links {
-        display: flex;
-        justify-content: center;
-        gap: 25px;
-        margin-bottom: 15px;
-    }
-
-    .footer-links a {
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        color: var(--text-secondary);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-    .footer-links a:hover {
-        color: var(--accent-gold);
-    }
-
-    .version {
-        font-family: 'Inter', sans-serif;
-        font-size: 12px;
-        color: var(--text-secondary);
-        opacity: 0.7;
-    }
-
-    /* Language selector */
-    .language-selector {
-        position: absolute;
-        top: 30px;
-        right: 30px;
-    }
-
-    .language-selector select {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        cursor: pointer;
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-        .login-card {
-            flex-direction: column;
-            min-height: auto;
-            width: 95%;
-        }
-        
-        .hero-section {
-            padding: 40px 30px;
-            border-radius: 24px 24px 0 0;
-            
-            
-            
-        }
-        
-        .form-section {
-            padding: 40px 30px;
-        }
-        
-        .hero-content {
-            max-width: 100%;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .page-title {
-            font-size: 26px;
-        }
-        
-        .hero-title {
-            font-size: 26px;
-        }
-        
-        .features-list {
-            gap: 10px;
-        }
-        
-        .feature-item {
-            padding: 10px 15px;
-            font-size: 14px;
-        }
-    }
-
-    /* Hide streamlit labels */
-    .stTextInput label,
-    .stNumberInput label {
-        display: none !important;
-    }
-
-    /* Error/Success messages */
-    .stAlert {
-        border-radius: 12px !important;
-        border-left: none !important;
-        animation: fadeInUp 0.4s ease-out;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Main container
-    
-    # Login card container
-    
     # Create two columns
     col1, col2 = st.columns([1.4, 1])
     
@@ -690,7 +632,7 @@ def main():
         
         # Login form
         with st.form("login_form", clear_on_submit=True):
-            # User ID field with animation
+            # User ID field
             st.markdown('<span class="custom-label">IDENTIFIANT UTILISATEUR</span>', unsafe_allow_html=True)
             user_id = st.number_input(
                 "ID Utilisateur",
@@ -701,7 +643,7 @@ def main():
                 placeholder="Entrez votre identifiant unique"
             )
             
-            # Password field with animation
+            # Password field
             st.markdown('<span class="custom-label">MOT DE PASSE</span>', unsafe_allow_html=True)
             password = st.text_input(
                 "Mot de passe",
@@ -804,10 +746,6 @@ def main():
             <div class="version">Version 2.1.4 | © 2024 ExamensPro</div>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Close containers
-    st.markdown('</div>', unsafe_allow_html=True)  # Close login-card
-    st.markdown('</div>', unsafe_allow_html=True)  # Close main-container
 
 if __name__ == "__main__":
     main()
