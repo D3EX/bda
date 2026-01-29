@@ -89,7 +89,8 @@ st.markdown("""
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 80vh;
+    min-width: 80vh;
     padding: 20px;
     position: relative;
     overflow: hidden;
