@@ -210,15 +210,17 @@ def main():
 
     /* Login card */
 .login-card {
-    background: white;
-    width: 900px;              /* Control total width */
-    max-width: 90vw;           /* Responsive */
-    min-height: 520px;         /* Reduce height */
-    border-radius: 24px;
-    box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
+    width: 850px;        /* 🔥 card width */
+    height: 520px;       /* 🔥 card height */
+    max-width: 95vw;     /* responsive */
+    max-height: 95vh;
+    border-radius: 22px;
+    box-shadow: 0 25px 70px rgba(10,20,41,0.15);
     overflow: hidden;
     display: flex;
+    background: white;
 }
+
 
     @keyframes fadeInUp {
         from {
@@ -233,10 +235,15 @@ def main():
 
     /* Hero section */
 .hero-section {
-    flex: 1.1;
-    padding: 40px 30px;
-    border-radius: 24px 0 0 24px;
-    height: auto;              /* 🔥 Remove forced height */
+       flex: 1;
+    padding: 35px 30px;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #15203d 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
 }
 
     .hero-section::before {
