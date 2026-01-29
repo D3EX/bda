@@ -59,6 +59,7 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
 # Encodage base64 d'une image universitaire par défaut (placeholder)
+@st.cache_data  # Cache the result so it doesn't run on every rerun
 def get_base64_image():
     try:
         # Vérifie si l'image existe
