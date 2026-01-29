@@ -52,12 +52,7 @@ hide_streamlit_style = """
     [data-testid="collapsedControl"] {
         display: none !important;
     }
-    
-    /* Ensure main content takes full width */
-    .main .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+
     
     /* Optional: remove padding around the page */
     .block-container {
@@ -214,17 +209,16 @@ def main():
     }
 
     /* Login card */
-    .login-card {
-        background: white;
-        width: 100px;
-        max-width: 80vw;
-        box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.95);
-        overflow: hidden;
-        display: flex;
-        min-height: 650px;
-        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    }
+.login-card {
+    background: white;
+    width: 900px;              /* Control total width */
+    max-width: 90vw;           /* Responsive */
+    min-height: 520px;         /* Reduce height */
+    border-radius: 24px;
+    box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+}
 
     @keyframes fadeInUp {
         from {
@@ -238,19 +232,12 @@ def main():
     }
 
     /* Hero section */
-    .hero-section {
-        flex: 1.2;
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
-        padding: 50px 40px;
-        display: flex;
-        flex-direction:;
-        justify-content: center;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        border-radius: 24px 0 0 24px;
-        height: 700px;      
-                    }
+.hero-section {
+    flex: 1.1;
+    padding: 40px 30px;
+    border-radius: 24px 0 0 24px;
+    height: auto;              /* 🔥 Remove forced height */
+}
 
     .hero-section::before {
         content: '';
