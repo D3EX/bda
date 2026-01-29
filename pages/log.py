@@ -200,7 +200,7 @@ st.markdown("""
 
 .hero-title {
     font-family: 'Poppins', sans-serif;
-    font-size: 36px;
+    font-size: 20px;
     font-weight: 700;
     margin-bottom: 20px;
     line-height: 1.2;
