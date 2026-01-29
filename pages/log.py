@@ -244,20 +244,20 @@ def main():
     }
 
     /* Hero section */
-    .hero-section {
-        flex: 1.2;
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
-        padding: 50px 40px;
-        display: flex;
-        flex-direction:;
-        justify-content: center;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        border-radius: 24px 0 0 24px;
-        height: 700px;  
-        width:600px;
-                    }
+.hero-section {
+    width: 100%;                  /* 🔥 fits Streamlit column */
+    min-height: 650px;            /* keeps it tall */
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;       /* FIXED (you had empty value before) */
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    border-radius: 24px 0 0 24px;
+
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+}
 
     .hero-section::before {
         content: '';
