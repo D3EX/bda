@@ -188,7 +188,6 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     font-size: 36px;
-    margin-bottom: 30px;
     box-shadow: 0 15px 35px rgba(212, 168, 83, 0.4);
     animation: pulse 2s ease-in-out infinite;
 }
@@ -202,7 +201,6 @@ st.markdown("""
     font-family: 'Poppins', sans-serif;
     font-size: 20px;
     font-weight: 700;
-    margin-bottom: 20px;
     line-height: 1.2;
     background: linear-gradient(135deg, #ffffff 0%, var(--accent-light) 100%);
     -webkit-background-clip: text;
@@ -319,7 +317,6 @@ st.markdown("""
 
 
 .form-group {
-    margin-bottom: 25px;
     animation: fadeIn 0.5s ease-out forwards;
     opacity: 0;
 }
@@ -462,7 +459,6 @@ st.markdown("""
 
 /* Footer */
 .auth-footer {
-    margin-top: 40px;
     padding-top: 25px;
     border-top: 1px solid var(--border);
     text-align: center;
@@ -473,7 +469,6 @@ st.markdown("""
     display: flex;
     justify-content: center;
     gap: 25px;
-    margin-bottom: 15px;
     flex-wrap: wrap;
 }
 
