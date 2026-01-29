@@ -813,9 +813,6 @@ def main():
                     <input type="checkbox" id="remember" checked>
                     <label for="remember" class="checkbox-label">Se souvenir de moi</label>
                 </div>
-                <div class="forgot-password" onclick="alert('Pour réinitialiser votre mot de passe, contactez le support technique à support@examenspro.edu')">
-                    Mot de passe oublié ?
-                </div>
             </div>
             """, unsafe_allow_html=True)
             
