@@ -740,11 +740,6 @@ def main():
             <div class="hero-content">
                 <div class="hero-icon">🎓</div>
                 <h1 class="hero-title">Système Intelligent de Gestion des Examens</h1>
-                <p class="hero-subtitle">
-                    Plateforme unifiée pour la planification, surveillance et évaluation 
-                    des examens universitaires. Accédez à tous vos outils pédagogiques 
-                    en toute sécurité depuis un seul espace.
-                </p>
                 <div class="features-list">
                     <div class="feature-item">
                         <span class="feature-icon">✅</span>
