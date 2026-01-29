@@ -746,21 +746,8 @@ def get_user_role_info(role):
     return {'icon': '👤', 'desc': 'Utilisateur système'}
 
 def main():
-    # Background shapes
-    st.markdown('<div class="background-shapes"><div class="shape shape-1"></div><div class="shape shape-2"></div><div class="shape shape-3"></div></div>', unsafe_allow_html=True)
-    
-    # Language selector
-    st.markdown("""
-    <div class="language-selector">
-        <select onchange="alert('Fonctionnalité à venir : Sélection de langue')">
-            <option value="fr">🇫🇷 Français</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="es">🇪🇸 Español</option>
-        </select>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Main container
+
+        # Main container
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
     # Login card
