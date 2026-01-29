@@ -34,6 +34,27 @@ html, body, .stApp {
 # Dans votre section CSS, ajoutez ceci :
 hide_streamlit_style = """
     <style>
+        /* Cache la navigation */
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    /* Hide top menu and footer */
+    #MainMenu {display: none;}
+    footer {display: none;}
+    header {display: none;}
+    
+    /* Hide sidebar completely */
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
+    /* Hide the sidebar toggle button */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+
+    
+    /* Optional: remove padding around the page */
 /* Center whole page content */
 .main .block-container {
     max-width: 1000px !important;   /* 🔥 largeur globale */
@@ -811,4 +832,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
