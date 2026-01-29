@@ -335,52 +335,7 @@ st.markdown("""
     to { opacity: 1; }
 }
 
-.custom-label {
-    font-family: 'Poppins', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    letter-spacing: 0.5px;
-    display: block;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
 
-/* Enhanced input styling */
-.stTextInput > div > div,
-.stNumberInput > div > div {
-    background: var(--surface) !important;
-    border: 2px solid var(--border) !important;
-    border-radius: var(--radius-md) !important;
-    transition: all 0.3s ease !important;
-    padding: 4px !important;
-}
-
-.stTextInput > div > div:hover,
-.stNumberInput > div > div:hover {
-    border-color: var(--accent-gold) !important;
-    box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.1) !important;
-}
-
-.stTextInput > div > div:focus-within,
-.stNumberInput > div > div:focus-within {
-    border-color: var(--accent-gold) !important;
-    box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.2) !important;
-}
-
-.stTextInput input,
-.stNumberInput input {
-    font-family: 'Inter', sans-serif !important;
-    font-size: 16px !important;
-    padding: 12px 16px !important;
-    color: var(--text-primary) !important;
-}
-
-.stTextInput input::placeholder,
-.stNumberInput input::placeholder {
-    color: var(--text-secondary) !important;
-    opacity: 0.6;
-}
 
 /* Options row */
 .options-row {
