@@ -18,6 +18,7 @@ st.set_page_config(
 )
 
 # Hide Streamlit default UI elements
+# Dans votre section CSS, ajoutez ceci :
 hide_streamlit_style = """
     <style>
         /* Cache la navigation */
@@ -28,6 +29,23 @@ hide_streamlit_style = """
     #MainMenu {display: none;}
     footer {display: none;}
     header {display: none;}
+    
+    /* Hide sidebar completely */
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
+    /* Hide the sidebar toggle button */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    
+    /* Ensure main content takes full width */
+    .main .block-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
     
     /* Optional: remove padding around the page */
     .block-container {
