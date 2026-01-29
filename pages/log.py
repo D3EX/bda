@@ -267,7 +267,6 @@ st.markdown("""
 
 /* Header */
 .auth-header {
-    margin-bottom: 40px;
     text-align: center;
 }
 
@@ -307,7 +306,6 @@ st.markdown("""
     font-size: 28px;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 8px;
 }
 
 .page-subtitle {
@@ -318,9 +316,7 @@ st.markdown("""
 }
 
 /* Form styling */
-.login-form {
-    margin-top: 20px;
-}
+
 
 .form-group {
     margin-bottom: 25px;
