@@ -625,8 +625,10 @@ def authenticate_user(user_id, password):
 
 def show_login_form():
     """Display the login form"""
+
     st.markdown("""
     <div class="login-card">
+
         <!-- Hero Section -->
         <div class="hero-section">
             <div class="hero-content">
@@ -656,6 +658,9 @@ def show_login_form():
                 <h1 class="page-title">Connexion Sécurisée</h1>
                 <p class="page-subtitle">Accédez à votre espace personnel</p>
             </div>
+        </div>
+
+    </div>
     """, unsafe_allow_html=True)
     
     # Login form
