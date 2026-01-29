@@ -230,7 +230,7 @@ def main():
     .login-card {
         background: white;
         width: 300px;
-        max-width: 80vw;
+        max-width: 90vw;
         box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.95);
         overflow: hidden;
@@ -262,7 +262,8 @@ def main():
         position: relative;
         overflow: hidden;
         border-radius: 24px 0 0 24px;
-        height: 700px;      
+        height: 700px;  
+        width: 1000px;
                     }
 
     .hero-section::before {
