@@ -204,7 +204,7 @@ def main():
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 80vh;
+        min-height: 70vh;
         padding: 20px;
         animation: fadeIn 0.8s ease-out;
     }
