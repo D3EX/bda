@@ -256,6 +256,7 @@ def main():
         overflow: hidden;
         border-radius: 24px 0 0 24px;
         height: 700px;  
+        width:600px;
                     }
 
     .hero-section::before {
