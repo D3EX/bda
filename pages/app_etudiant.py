@@ -143,53 +143,41 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Fonction pour obtenir la connexion à la base de données
+@st.cache_resource(show_spinner=False)
 def get_connection():
-    """Établit une connexion à la base de données MySQL"""
-    try:
-        # Utiliser les secrets Streamlit
-        config = {
-            'host': st.secrets["mysql"]["host"],
-            'port': int(st.secrets["mysql"]["port"]),
-            'database': st.secrets["mysql"]["database"],
-            'user': st.secrets["mysql"]["user"],
-            'password': st.secrets["mysql"]["password"]
-        }
-        
-        conn = mysql.connector.connect(**config)
-        return conn
-    except Exception as e:
-        st.error(f"Erreur de connexion à la base de données: {e}")
-        return None
-
+    cfg = st.secrets["mysql"]
+    return mysql.connector.connect(
+        host=cfg["host"],
+        port=int(cfg["port"]),
+        database=cfg["database"],
+        user=cfg["user"],
+        password=cfg["password"],
+        autocommit=True,
+        connection_timeout=10
+    )
 # Fonction pour exécuter les requêtes SQL
 def run_query(query, params=None, fetch=True):
-    """Exécute une requête SQL avec gestion d'erreurs"""
-    conn = None
     try:
         conn = get_connection()
-        if conn is None:
-            return None
-            
+
+        # 🔁 Reconnect automatically if dropped
+        if not conn.is_connected():
+            conn.reconnect(attempts=3, delay=2)
+
         cursor = conn.cursor(dictionary=True)
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        
+        cursor.execute(query, params or ())
+
         if fetch:
             result = cursor.fetchall()
             cursor.close()
-            conn.close()
             return result
-        else:
-            conn.commit()
-            cursor.close()
-            conn.close()
-            return True
+
+        conn.commit()
+        cursor.close()
+        return True
+
     except Error as e:
-        st.error(f"Erreur SQL: {e}")
-        if conn:
-            conn.close()
+        st.error(f"Database error: {e}")
         return None
 
 # Fonctions pour les étudiants
