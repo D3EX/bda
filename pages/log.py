@@ -586,40 +586,47 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Database connection functions (same as before)
-def get_connection():
-    if "conn" not in st.session_state:
-        try:
-            cfg = st.secrets["mysql"]
-            st.session_state.conn = mysql.connector.connect(
-                host=cfg["host"],
-                port=int(cfg["port"]),
-                database=cfg["database"],
-                user=cfg["user"],
-                password=cfg["password"],
-                autocommit=True
-            )
-        except Error as e:
-            st.error(f"Erreur DB : {e}")
-            st.stop()
-    return st.session_state.conn
+import streamlit as st
+import mysql.connector
+from mysql.connector import Error
 
-conn = get_connection()
+@st.cache_resource(show_spinner=False)
+def get_connection():
+    cfg = st.secrets["mysql"]
+    return mysql.connector.connect(
+        host=cfg["host"],
+        port=int(cfg["port"]),
+        database=cfg["database"],
+        user=cfg["user"],
+        password=cfg["password"],
+        autocommit=True,
+        connection_timeout=10
+    )
 
 def run_query(query, params=None, fetch=True):
     try:
-        if conn is None:
-            return None
+        conn = get_connection()
+
+        # 🔁 Reconnect automatically if dropped
+        if not conn.is_connected():
+            conn.reconnect(attempts=3, delay=2)
+
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, params) if params else cursor.execute(query)
+        cursor.execute(query, params or ())
+
         if fetch:
             result = cursor.fetchall()
             cursor.close()
             return result
+
         conn.commit()
         cursor.close()
         return True
-    except Error:
+
+    except Error as e:
+        st.error(f"Database error: {e}")
         return None
+
 
 def authenticate_user(user_id, password):
     if conn is None:
