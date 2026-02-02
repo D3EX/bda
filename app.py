@@ -262,14 +262,14 @@ def main():
         min-height: 100vh;
     }}
     
-    /* Hero Header avec image universitaire - CORRIGÉ (background en couleur unie) */
+    /* Hero Header avec image universitaire - CORRIGÉ (fond navy) */
     .hero-container {{
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 3rem;
         align-items: center;
         padding: 3rem 1.5rem;
-        background: black; /* Changé en couleur unie navy */
+        background: var(--navy); /* FOND NAVY CORRIGÉ */
         border-radius: 0 0 1.5rem 1.5rem;
         margin: -1rem -1rem 2rem -1rem;
         min-height: 450px;
@@ -1270,6 +1270,9 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
+    # HERO SECTION - AVEC CONTENEUR NAVY
+    st.markdown('<div class="hero-container">', unsafe_allow_html=True)
+    
     # Hero Section avec colonnes Streamlit
     col1, col2 = st.columns([1, 1], gap="large")
     
@@ -1314,11 +1317,14 @@ def main():
     
     with col2:
         # Container pour l'image avec style CSS
+        st.markdown('<div class="hero-image-container">', unsafe_allow_html=True)
         # Afficher l'image avec Streamlit
         st.image(pil_image, use_container_width=True, 
                 caption="", 
                 output_format="auto")
         st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # Fin du conteneur hero-container
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
