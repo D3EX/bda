@@ -443,8 +443,10 @@ def main():
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 1.5rem;
         border: 1px solid var(--border-light);
         position: sticky;
+        top: 0.5rem;
         z-index: 1000;
         transition: all 0.3s ease;
     }}
