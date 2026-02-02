@@ -562,7 +562,7 @@ def main():
     font-family: 'Playfair Display', serif;
     font-size: 1.8rem;
     font-weight: 700;
-    color: var(--section-title-color);  /* Utilisez la variable */
+    color: white !important; /* Changement ici - ajout de !important */
     margin-bottom: 1.5rem;
     padding-bottom: 0.8rem;
     position: relative;
@@ -576,7 +576,7 @@ def main():
     left: 0;
     width: 4rem;
     height: 4px;
-    color: var(--section-title-color);  /* Utilisez la variable */
+    color: white !important; /* Changement ici - ajout de !important */
     border-radius: 2px;
 }}
     
