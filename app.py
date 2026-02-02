@@ -561,7 +561,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: white;
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 1.5rem;
         padding-bottom: 0.8rem;
         position: relative;
@@ -577,7 +577,7 @@ def main():
         height: 4px;
         background: white ;
         border-radius: 2px;
-        color: white;
+        color: rgba(255, 255, 255, 0.9);
                 
                 
     }}
@@ -871,7 +871,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        color: white;
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 1rem;
         position: relative;
         z-index: 2;
