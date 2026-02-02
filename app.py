@@ -51,32 +51,6 @@ hide_streamlit_style = """
         margin: 0 !important;
         max-width: 100% !important;
     }
-    
-    /* Hero container styling for Streamlit columns */
-    .hero-container-wrapper {
-        background: #0a1429;
-        padding: 3rem 1.5rem;
-        border-radius: 0 0 1.5rem 1.5rem;
-        margin: -1rem -1rem 2rem -1rem;
-        min-height: 450px;
-    }
-    
-    /* Style pour forcer les colonnes à avoir un fond navy */
-    div[data-testid="column"]:nth-of-type(1),
-    div[data-testid="column"]:nth-of-type(2) {
-        background: #0a1429;
-    }
-    
-    /* Style pour la colonne de gauche */
-    div[data-testid="column"]:nth-of-type(1) {
-        padding-left: 1rem;
-    }
-    
-    /* Style pour la colonne de droite */
-    div[data-testid="column"]:nth-of-type(2) {
-        padding-right: 1rem;
-    }
-    
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -249,7 +223,7 @@ def main():
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
     
     /* Variables CSS académiques */
- :root {{
+    :root {{
         --navy: #0a1429;
         --navy-light: #1a2744;
         --navy-lighter: #2a3659;
@@ -288,7 +262,31 @@ def main():
         min-height: 100vh;
     }}
     
-    /* Hero Header avec image universitaire - CORRIGÉ (background en couleur unie) */
+    /* Hero Header avec image universitaire */
+    .hero-container {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        padding: 3rem 1.5rem;
+        background: var(--gradient-academic);
+        border-radius: 0 0 1.5rem 1.5rem;
+        margin: -1rem -1rem 2rem -1rem;
+        min-height: 450px;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .hero-container::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a853' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }}
+    
     .hero-content {{
         color: white;
         z-index: 2;
@@ -1162,6 +1160,31 @@ def main():
     
     /* Responsive Design */
     @media (max-width: 1024px) {{
+        .hero-container {{
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 2rem;
+            padding: 2rem 1rem;
+        }}
+        
+        .hero-content {{
+            padding-left: 0;
+        }}
+        
+        .hero-subtitle {{
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }}
+        
+        .hero-image-container {{
+            height: 280px;
+            max-width: 500px;
+            margin: 0 auto;
+        }}
+    }}
+    
+    @media (max-width: 768px) {{
         .hero-title {{
             font-size: 2rem;
         }}
@@ -1256,9 +1279,6 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Hero Section avec fond navy
-    st.markdown('<div class="hero-container-wrapper">', unsafe_allow_html=True)
-    
     # Hero Section avec colonnes Streamlit
     col1, col2 = st.columns([1, 1], gap="large")
     
@@ -1309,8 +1329,6 @@ def main():
                 caption="", 
                 output_format="auto")
         st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)  # Fin du conteneur hero-container-wrapper
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
@@ -1501,7 +1519,7 @@ def main():
     # FOOTER
     st.markdown("""
     <div style="
-        background: #0a1429;  /* Changé en couleur unie navy */
+        background: linear-gradient(135deg, #0a1429, #002147);
         padding: 2rem;
         color: white;
         text-align: center;
