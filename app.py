@@ -264,17 +264,18 @@ def main():
     
     /* Hero Header avec image universitaire */
     .hero-container {{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: center;
-        padding: 3rem 1.5rem;
-        background: linear-gradient(135deg, #0a1429, #002147);
-        border-radius: 0 0 1.5rem 1.5rem;
-        margin: -1rem -1rem 2rem -1rem;
-        min-height: 450px;
-        position: relative;
-        overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    padding: 3rem 1.5rem;
+    background: #0a1429; /* ← Changed to solid navy */
+    border-radius: 0 0 1.5rem 1.5rem;
+    margin: -1rem -1rem 2rem -1rem;
+    min-height: 450px;
+    position: relative;
+    overflow: hidden;
+
     }}
     
     .hero-container::before {{
