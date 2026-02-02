@@ -561,7 +561,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: var(--text-dark);
+        color: white;
         margin-bottom: 1.5rem;
         padding-bottom: 0.8rem;
         position: relative;
