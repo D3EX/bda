@@ -1329,8 +1329,6 @@ def main():
         st.image(pil_image, use_container_width=True, 
                 caption="", 
                 output_format="auto")
-
-    st.markdown('</div>', unsafe_allow_html=True)
         
         # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
