@@ -446,7 +446,7 @@ def main():
         margin-bottom: 1.5rem;
         border: 1px solid var(--border-light);
         position: sticky;
-        top: -20px;
+        top: 20px;
         z-index: 1000;
         transition: all 0.3s ease;
     }}
