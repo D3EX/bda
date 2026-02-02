@@ -252,6 +252,7 @@ def main():
         --gradient-navy: linear-gradient(135deg, #0a1429, #1a2744);
         --gradient-academic: linear-gradient(135deg, #0a1429, #002147, #1a2744);
         --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        --section-title-color: white;
     }}
     
     /* Reset et base */
@@ -556,31 +557,28 @@ def main():
         transform: translateY(-2px);
     }}
     
-    /* Section Title académique */
-    .section-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.8rem;
-        position: relative;
-        display: inline-block;
-    }}
-    
-    .section-title::after {{
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 4rem;
-        height: 4px;
-        background: white ;
-        border-radius: 2px;
-        color: rgba(255, 255, 255, 0.9);
-                
-                
-    }}
+/* Section Title académique - MODIFIÉ POUR BLANC */
+.section-title {{
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;  /* Changé de rgba(255, 255, 255, 0.9) à white */
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    position: relative;
+    display: inline-block;
+}}
+
+.section-title::after {{
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 4rem;
+    height: 4px;
+    background: white;  /* Changé le dégradé pour blanc uni */
+    border-radius: 2px;
+}}
     
     /* Stats Grid amélioré */
     .stats-grid {{
