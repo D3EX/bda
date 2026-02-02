@@ -6,6 +6,7 @@ import pandas as pd
 import time
 from datetime import datetime
 import os
+from PIL import Image
 
 image_path = "young-muslim-student-class.jpg"
 st.set_page_config(
@@ -54,19 +55,20 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Vérifier si l'image existe et utiliser une URL par défaut sinon
-def get_image_url():
+# Vérifier et charger l'image
+@st.cache_data
+def load_image():
     try:
         if os.path.exists(image_path):
-            # Utiliser un chemin relatif ou absolu
-            return image_path
+            return Image.open(image_path)
         else:
-            # Fallback vers une image online
+            # Télécharger une image de fallback
             st.warning(f"Image non trouvée à l'emplacement: {image_path}")
-            return "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
+            # Retourner une image vide (noir) comme fallback
+            return Image.new('RGB', (800, 450), color='#0a1429')
     except Exception as e:
         st.error(f"Erreur de chargement d'image: {e}")
-        return "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
+        return Image.new('RGB', (800, 450), color='#0a1429')
 
 # Emojis académiques professionnels
 ACADEMIC_EMOJIS = {
@@ -212,8 +214,8 @@ ACADEMIC_EMOJIS = {
 
 # Page d'accueil
 def main():
-    # Récupérer l'URL de l'image
-    image_url = get_image_url()
+    # Charger l'image
+    pil_image = load_image()
     
     # Style CSS personnalisé - Design académique professionnel
     st.markdown(f"""
@@ -391,17 +393,6 @@ def main():
         box-shadow: var(--shadow-lg);
         border: 2px solid var(--gold);
         height: 350px;
-    }}
-    
-    .hero-image {{
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: linear-gradient(135deg, var(--navy), var(--navy-light));
-        background-image: url("{image_url}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
     }}
     
     .hero-stats {{
@@ -1270,9 +1261,11 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Hero Section avec image universitaire
-    st.markdown(f"""
-    <div class="hero-container">
+    # Hero Section avec colonnes Streamlit
+    col1, col2 = st.columns([1, 1], gap="large")
+    
+    with col1:
+        st.markdown(f"""
         <div class="hero-content">
             <div class="hero-badge">
                 {ACADEMIC_EMOJIS['university']} Système Académique Officiel
@@ -1308,11 +1301,16 @@ def main():
                 </div>
             </div>
         </div>
-        <div class="hero-image-container">
-            <div class="hero-image"></div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        # Container pour l'image avec style CSS
+        st.markdown('<div class="hero-image-container">', unsafe_allow_html=True)
+        # Afficher l'image avec Streamlit
+        st.image(pil_image, use_container_width=True, 
+                caption="", 
+                output_format="auto")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
