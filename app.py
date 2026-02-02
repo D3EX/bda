@@ -51,9 +51,7 @@ hide_streamlit_style = """
     
     /* Optional: remove padding around the page */
     .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
+
     }
     </style>
 """
