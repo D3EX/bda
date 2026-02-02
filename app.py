@@ -51,6 +51,14 @@ hide_streamlit_style = """
         margin: 0 !important;
         max-width: 100% !important;
     }
+    
+    /* Style pour le conteneur d'image Streamlit dans le hero */
+    .hero-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 1rem;
+    }
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -62,9 +70,7 @@ def load_image():
         if os.path.exists(image_path):
             return Image.open(image_path)
         else:
-            # Télécharger une image de fallback
             st.warning(f"Image non trouvée à l'emplacement: {image_path}")
-            # Retourner une image vide (noir) comme fallback
             return Image.new('RGB', (800, 450), color='#0a1429')
     except Exception as e:
         st.error(f"Erreur de chargement d'image: {e}")
@@ -393,7 +399,6 @@ def main():
         box-shadow: var(--shadow-lg);
         border: 2px solid var(--gold);
         height: 350px;
-        width: 100%;
     }}
     
     .hero-image {{
@@ -848,7 +853,7 @@ def main():
         padding: 3rem 1.5rem;
         margin: 2.5rem 0;
         background: var(--gradient-academic);
-        border-radius: 1.5rem;
+        border-radius: 0;
         position: relative;
         overflow: hidden;
     }}
@@ -1279,13 +1284,9 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Hero Section avec colonnes Streamlit
-    st.markdown('<div class="hero-container">', unsafe_allow_html=True)
-
-    col1, col2 = st.columns([1, 1], gap="large")
-
-    with col1:
-        st.markdown(f"""
+    # Hero Section avec le conteneur HTML original
+    st.markdown(f"""
+    <div class="hero-container">
         <div class="hero-content">
             <div class="hero-badge">
                 {ACADEMIC_EMOJIS['university']} Système Académique Officiel
@@ -1321,16 +1322,20 @@ def main():
                 </div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        # Container pour l'image avec style CSS
-        # Afficher l'image avec Streamlit
-        st.image(pil_image, use_container_width=True, 
-                caption="", 
-                output_format="auto")
-        
-        # Modified columns layout for two buttons
+        <div class="hero-image-container">
+            """, unsafe_allow_html=True)
+    
+    # Afficher l'image directement dans le conteneur HTML
+    st.image(pil_image, use_container_width=True, 
+             caption="", 
+             output_format="auto")
+    
+    st.markdown("""
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
     
     with col2:
