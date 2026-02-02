@@ -439,15 +439,12 @@ def main():
         background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(20px);
         padding: 1rem 2rem;
-        border-radius: 0.8rem;
         box-shadow: var(--shadow-md);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
         border: 1px solid var(--border-light);
         position: sticky;
-        top: 0.5rem;
         z-index: 1000;
         transition: all 0.3s ease;
     }}
