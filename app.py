@@ -19,6 +19,10 @@ st.set_page_config(
 # Hide Streamlit default UI elements
 hide_streamlit_style = """
     <style>
+       #MainMenu, footer, header, .stDeployButton, [data-testid="stToolbar"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
         /* Cache la navigation */
     [data-testid="stSidebarNav"] {
         display: none;
