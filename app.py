@@ -1305,7 +1305,6 @@ def main():
     
     with col2:
         # Container pour l'image avec style CSS
-        st.markdown('<div class="hero-image-container">', unsafe_allow_html=True)
         # Afficher l'image avec Streamlit
         st.image(pil_image, use_container_width=True, 
                 caption="", 
