@@ -269,7 +269,7 @@ def main():
         gap: 3rem;
         align-items: center;
         padding: 3rem 1.5rem;
-        background: #0a1429; /* Changé en couleur unie navy */
+        background: black; /* Changé en couleur unie navy */
         border-radius: 0 0 1.5rem 1.5rem;
         margin: -1rem -1rem 2rem -1rem;
         min-height: 450px;
@@ -277,14 +277,6 @@ def main():
         overflow: hidden;
     }}
     
-    .hero-container::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-    }}
     
     .hero-content {{
         color: white;
