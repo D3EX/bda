@@ -256,13 +256,12 @@ def main():
     
     /* Reset et base */
     .main {{
-        background-color: var(--bg-light);
         font-family: 'Inter', sans-serif;
         line-height: 1.6;
     }}
     
     .stApp {{
-        background: var(--bg-light);
+        background: linear-gradient(135deg, #0a1429 0%, #1a2744 100%) !important;
         min-height: 100vh;
     }}
     
@@ -288,7 +287,6 @@ def main():
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a853' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }}
     
     .hero-content {{
@@ -441,7 +439,6 @@ def main():
         background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(20px);
         padding: 1rem 2rem;
-        border-radius: 0.8rem;
         box-shadow: var(--shadow-md);
         display: flex;
         justify-content: space-between;
@@ -564,7 +561,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: var(--text-dark);
+        color: white;
         margin-bottom: 1.5rem;
         padding-bottom: 0.8rem;
         position: relative;
@@ -578,8 +575,11 @@ def main():
         left: 0;
         width: 4rem;
         height: 4px;
-        background: var(--gradient-gold);
+        background: white ;
         border-radius: 2px;
+        color: white;
+                
+                
     }}
     
     /* Stats Grid amélioré */
@@ -871,7 +871,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        color: white;
+        color: white !important;
         margin-bottom: 1rem;
         position: relative;
         z-index: 2;
@@ -1282,56 +1282,7 @@ def main():
         </div>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("""
-<style>
-/* Hero section container */
-.hero-content {
-    background-color: #001f3f; /* Navy background */
-    background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e'); /* optional image */
-    background-size: cover;  /* Cover entire container */
-    background-position: center;
-    padding: 50px;
-    border-radius: 15px;
-    color: white;  /* Make text readable on dark bg */
-}
 
-/* Buttons styling */
-.hero-button-primary, .hero-button-secondary {
-    display: inline-block;
-    padding: 12px 25px;
-    margin: 10px 10px 0 0;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.hero-button-primary {
-    background-color: #ff6f61;
-    color: white;
-}
-
-.hero-button-secondary {
-    background-color: transparent;
-    border: 2px solid white;
-    color: white;
-}
-
-/* Stats */
-.hero-stats {
-    display: flex;
-    gap: 30px;
-    margin-top: 30px;
-}
-.hero-stat-number {
-    font-size: 2em;
-    font-weight: bold;
-}
-.hero-stat-label {
-    font-size: 0.9em;
-    color: #ddd;
-}
-</style>
-""", unsafe_allow_html=True)
     # Hero Section avec colonnes Streamlit
     col1, col2 = st.columns([1, 1], gap="large")
     
