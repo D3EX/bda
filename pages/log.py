@@ -1,1539 +1,796 @@
-# app.py - Page d'accueil avec image et emojis académiques
 import streamlit as st
 import mysql.connector
 from mysql.connector import Error
-import pandas as pd
 import time
-from datetime import datetime
-import os
-from PIL import Image
 
-image_path = "young-muslim-student-class.jpg"
+# Page config
 st.set_page_config(
-    page_title="My Page",
-    page_icon="🎓",
-    layout="wide",
+    page_title="Connexion - Système Examens",
+    page_icon="🔐",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Hide Streamlit default UI elements
-hide_streamlit_style = """
-    <style>
-       #MainMenu, footer, header, .stDeployButton, [data-testid="stToolbar"] {
+# Combined CSS styles with no scroll modifications
+st.markdown("""
+<style>
+    /* Hide Streamlit UI elements */
+    #MainMenu, footer, header, .stDeployButton, [data-testid="stToolbar"] {
         display: none !important;
         visibility: hidden !important;
     }
-        /* Cache la navigation */
+    
     [data-testid="stSidebarNav"] {
         display: none;
     }
-    /* Hide top menu and footer */
-    #MainMenu {display: none;}
-    footer {display: none;}
-    header {display: none;}
     
-    /* Hide sidebar completely */
     [data-testid="stSidebar"] {
         display: none !important;
     }
     
-    /* Hide the sidebar toggle button */
     [data-testid="collapsedControl"] {
         display: none !important;
     }
     
-    /* Ensure main content takes full width */
+    /* Main layout - FIXED NO SCROLL */
     .main .block-container {
         padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
+        max-width: 1000px !important;
+        margin: auto !important;
+        height: 100vh !important;
+        overflow: hidden !important;
     }
     
-    /* Optional: remove padding around the page */
-    .block-container {
+    html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"] {
+        overflow: hidden !important;
+        height: 100vh !important;
+        margin: 0 !important;
         padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
+        background-color: white !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
     }
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# Vérifier et charger l'image
-@st.cache_data
-def load_image():
-    try:
-        if os.path.exists(image_path):
-            return Image.open(image_path)
-        else:
-            # Télécharger une image de fallback
-            st.warning(f"Image non trouvée à l'emplacement: {image_path}")
-            # Retourner une image vide (noir) comme fallback
-            return Image.new('RGB', (800, 450), color='#0a1429')
-    except Exception as e:
-        st.error(f"Erreur de chargement d'image: {e}")
-        return Image.new('RGB', (800, 450), color='#0a1429')
-
-# Emojis académiques professionnels
-ACADEMIC_EMOJIS = {
-    "system": "📚",  # Livres pour système
-    "dashboard": "📊",  # Graphiques
-    "calendar": "📅",  # Calendrier
-    "teacher": "👨‍🏫",  # Professeur
-    "student": "👨‍🎓",  # Étudiant diplômé
-    "department": "🏛️",  # Bâtiment institutionnel
-    "module": "📖",  # Livre ouvert
-    "classroom": "🏫",  # École
-    "exam": "✍️",  # Main écrivant
-    "schedule": "⏱️",  # Minuterie
-    "admin": "🔧",  # Outil
-    "dean": "🎖️",  # Médaille
-    "coordinator": "🤝",  # Poignée de main
-    "security": "🔒",  
-    "ai": "🤖",  # Robot
-    "mobile": "📱",  # Smartphone
-    "stats": "📈",  # Graphique croissant
-    "report": "📋",  # Liste
-    "notification": "🔔",  # Cloche
-    "export": "📤",  # Flèche sortante
-    "import": "📥",  # Flèche entrante
-    "settings": "⚙️",  # Engrenage
-    "help": "❓",  # Point d'interrogation
-    "time": "🕒",  # Horloge
-    "location": "📍",  # Épingle de carte
-    "email": "📧",  # Enveloppe
-    "phone": "📞",  # Téléphone
-    "university": "🎓",  # Mortier de diplômé
-    "graduation": "🎓",  # Mortier
-    "diploma": "📜",  # Parchemin
-    "research": "🔬",  # Microscope
-    "library": "📚",  # Livres
-    "computer": "💻",  # Ordinateur portable
-    "cloud": "☁️",  # Nuage
-    "database": "🗄️",  # Fichier
-    "network": "🌐",  # Globe
-    "analytics": "📊",  # Tableau de bord
-    "quality": "⭐",  # Étoile
-    "innovation": "💡",  # Ampoule
-    "collaboration": "👥",  # Silhouettes
-    "success": "✅",  # Coches
-    "warning": "⚠️",  # Attention
-    "error": "❌",  # Croix
-    "loading": "⏳",  # Sablier
-    "check": "✓",  # Check
-    "arrow": "→",  # Flèche
-    "refresh": "🔄",  # Flèches circulaires
-    "search": "🔍",  # Loupe
-    "filter": "🔎",  # Loupe avec zoom
-    "sort": "↕️",  # Flèches haut/bas
-    "download": "⬇️",  # Flèche bas
-    "upload": "⬆️",  # Flèche haut
-    "print": "🖨️",  # Imprimante
-    "save": "💾",  # Disquette
-    "edit": "✏️",  # Crayon
-    "delete": "🗑️",  # Corbeille
-    "add": "➕",  # Plus
-    "remove": "➖",  # Moins
-    "view": "👁️",  # Œil
-    "hide": "👁️‍🗨️",  # Œil barré
-    "lock": "🔐",  # Cadenas fermé
-    "unlock": "🔓",  # Cadenas ouvert
-    "key": "🔑",  # Clé
-    "home": "🏠",  # Maison
-    "back": "↩️",  # Flèche retour
-    "forward": "↪️",  # Flèche avant
-    "up": "⬆️",  # Flèche haut
-    "down": "⬇️",  # Flèche bas
-    "left": "⬅️",  # Flèche gauche
-    "right": "➡️",  # Flèche droite
-    "menu": "☰",  # Menu hamburger
-    "close": "✕",  # Croix
-    "info": "ℹ️",  # Information
-    "question": "❔",  # Point d'interrogation
-    "exclamation": "❗",  # Point d'exclamation
-    "star": "★",  # Étoile pleine
-    "heart": "❤️",  # Cœur
-    "flag": "🏁",  # Drapeau
-    "trophy": "🏆",  # Trophée
-    "medal": "🥇",  # Médaille or
-    "certificate": "📜",  # Certificat
-    "book": "📘",  # Livre bleu
-    "notebook": "📓",  # Cahier
-    "pen": "🖊️",  # Stylo
-    "paper": "📄",  # Page
-    "clipboard": "📋",  # Presse-papier
-    "folder": "📁",  # Dossier
-    "archive": "🗃️",  # Boîte d'archives
-    "bell": "🔔",  # Cloche
-    "megaphone": "📣",  # Mégaphone
-    "speech": "💬",  # Bulle de dialogue
-    "thought": "💭",  # Bulle de pensée
-    "money": "💰",  # Sac d'argent
-    "budget": "💵",  # Billet
-    "growth": "📈",  # Croissance
-    "decline": "📉",  # Déclin
-    "stable": "📊",  # Stable
-    "target": "🎯",  # Cible
-    "goal": "🥅",  # But de football
-    "plan": "🗺️",  # Carte
-    "strategy": "♟️",  # Pion d'échecs
-    "team": "👨‍👩‍👧‍👦",  # Famille
-    "meeting": "👥",  # Réunion
-    "presentation": "📽️",  # Projecteur
-    "video": "📹",  # Caméra
-    "audio": "🎧",  # Casque
-    "image": "🖼️",  # Cadre photo
-    "link": "🔗",  # Chaîne
-    "attachment": "📎",  # Trombone
-    "zip": "🗜️",  # Pince
-    "code": "💻",  # Code
-    "bug": "🐛",  # Insecte
-    "feature": "✨",  # Étincelles
-    "update": "🔄",  # Mise à jour
-    "version": "🏷️",  # Étiquette
-    "release": "🚀",  # Fusée
-    "launch": "🎆",  # Feux d'artifice
-    "celebration": "🎉",  # Confettis
-    "party": "🥳",  # Visage fêtard
-    "confetti": "🎊",  # Confettis ballon
-    "clock": "🕰️",  # Horloge murale
-    "watch": "⌚",  # Montre
-    "alarm": "⏰",  # Réveil
-    "timer": "⏲️",  # Minuteur
-    "stopwatch": "⏱️",  # Chronomètre
-    "calendar_day": "📆",  # Calendrier du jour
-    "date": "📅",  # Date
-    "event": "📅",  # Événement
-    "reminder": "🗓️",  # Calendrier avec date
-    "deadline": "⏳",  # Échéance
-    "urgent": "🚨",  # Gyrophare
-    "important": "‼️",  # Double exclamation
-    "priority": "🔥",  # Feu
-    "critical": "💥",  # Explosion
-    "normal": "🟢",  # Cercle vert
-    "low": "🟡",  # Cercle jaune
-    "medium": "🟠",  # Cercle orange
-    "high": "🔴",  # Cercle rouge
-}
-
-# Page d'accueil
-def main():
-    # Charger l'image
-    pil_image = load_image()
     
-    # Style CSS personnalisé - Design académique professionnel
-    st.markdown(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    /* Variables CSS académiques */
-    :root {{
-        --navy: #0a1429;
-        --navy-light: #1a2744;
-        --navy-lighter: #2a3659;
-        --gold: #d4a853;
-        --gold-light: #e6c47a;
-        --gold-dark: #b8923f;
-        --ivory: #f8f5f0;
-        --parchment: #f5efdc;
-        --sage: #8a9a5b;
-        --oxford-blue: #002147;
-        --crimson: #990000;
-        --bg-light: #f8fafc;
-        --card-bg: #ffffff;
-        --text-dark: #1e293b;
-        --text-muted: #64748b;
-        --border-light: #e2e8f0;
-        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
-        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
-        --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.12);
-        --gradient-gold: linear-gradient(135deg, #d4a853, #f6d365);
-        --gradient-navy: linear-gradient(135deg, #0a1429, #1a2744);
-        --gradient-academic: linear-gradient(135deg, #0a1429, #002147, #1a2744);
-        --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    }}
-    
-    /* Reset et base */
-    .main {{
-        font-family: 'Inter', sans-serif;
-        line-height: 1.6;
-    }}
-    
-    .stApp {{
-        background: linear-gradient(135deg, #0a1429 0%, #1a2744 100%) !important;
-        min-height: 100vh;
-    }}
-    
-    /* Hero Header avec image universitaire */
-    .hero-container {{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
+    .stApp {
+        display: flex;
+        justify-content: center;
         align-items: center;
-        padding: 3rem 1.5rem;
-        background: var(--gradient-academic);
-        border-radius: 0 0 1.5rem 1.5rem;
-        margin: -1rem -1rem 2rem -1rem;
-        min-height: 450px;
+        height: 100vh;
+        width: 100vw;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+    
+    [data-testid="column"] {
+        padding: 0 !important;
+        height: 100% !important;
+    }
+    
+    /* Force full viewport height */
+    div[data-testid="column"] > div {
+        height: 100% !important;
+    }
+    
+    /* Import fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary-dark: #0a1429;
+        --primary-medium: #1e293b;
+        --accent-gold: #d4a853;
+        --accent-light: #fef3c7;
+        --success: #10b981;
+        --error: #ef4444;
+        --background: #f8fafc;
+        --surface: #ffffff;
+        --border: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+    }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary-dark: #f1f5f9;
+            --primary-medium: #cbd5e1;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --border: #475569;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+        
+        .login-card {
+            background: var(--surface) !important;
+        }
+        
+        .stTextInput > div > div,
+        .stNumberInput > div > div {
+            background: #2d3748 !important;
+            border-color: #4a5568 !important;
+        }
+        
+        .stTextInput input,
+        .stNumberInput input {
+            color: var(--text-primary) !important;
+            background: transparent !important;
+        }
+        
+        .stApp {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(5deg); }
+    }
+    
+    @keyframes ripple {
+        0% { transform: scale(0, 0); opacity: 0.5; }
+        100% { transform: scale(40, 40); opacity: 0; }
+    }
+    
+    /* Login card - FIXED HEIGHT */
+    .login-card {
+        background: white;
+        width: 300px;
+        max-width: 90vw;
+        box-shadow: 0 25px 70px rgba(10, 20, 41, 0.15), 0 10px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        overflow: hidden;
+        display: flex;
+        height: 600px; /* Fixed height instead of min-height */
+        max-height: 95vh;
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    /* Hero section - FIXED HEIGHT */
+    .hero-section {
+        width: 100%;
+        height: 100%; /* Fixed height */
+        padding: 40px 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         position: relative;
         overflow: hidden;
-    }}
+        color: white;
+        border-radius: 24px 0 0 24px;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+    }
     
-    .hero-container::before {{
+    .hero-section::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-    }}
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(212, 168, 83, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    }
     
-    .hero-content {{
-        color: white;
-        z-index: 2;
-        padding-left: 1rem;
-    }}
-    
-    .hero-badge {{
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(212, 168, 83, 0.2);
-        color: var(--gold-light);
-        padding: 0.4rem 0.8rem;
-        border-radius: 1.5rem;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 0.75rem;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(212, 168, 83, 0.3);
-        backdrop-filter: blur(10px);
-    }}
-    
-    .hero-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: white;
-        margin: 0 0 1rem 0;
-        line-height: 1.2;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }}
-    
-    .hero-title span {{
-        background: var(--gradient-gold);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }}
-    
-    .hero-subtitle {{
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 2rem;
-        line-height: 1.6;
-        max-width: 90%;
-    }}
-    
-    .hero-buttons {{
-        display: flex;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-    }}
-    
-    .hero-button-primary {{
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--gradient-gold);
-        color: var(--navy);
-        padding: 0.8rem 1.8rem;
-        border-radius: 0.5rem;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 16px rgba(212, 168, 83, 0.35);
+    .hero-content {
         position: relative;
-        overflow: hidden;
-    }}
-    
-    .hero-button-primary:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.45);
-    }}
-    
-    .hero-button-secondary {{
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        padding: 0.8rem 1.8rem;
-        border-radius: 0.5rem;
-        font-family: 'Inter', sans-serif;
-        font-weight: 500;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }}
-    
-    .hero-button-secondary:hover {{
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.3);
-    }}
-    
-    .hero-image-container {{
-        position: relative;
-        border-radius: 1rem;
-        overflow: hidden;
-        box-shadow: var(--shadow-lg);
-        border: 2px solid var(--gold);
-        height: 350px;
-        width: 100%;
-    }}
-    
-    .hero-image {{
-        width: 100%;
+        z-index: 1;
+        max-width: 100%;
         height: 100%;
-        object-fit: cover;
-    }}
-    
-    .hero-stats {{
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }}
-    
-    .hero-stat {{
-        text-align: center;
-    }}
-    
-    .hero-stat-number {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--gold);
-        line-height: 1;
-        margin-bottom: 0.3rem;
-    }}
-    
-    .hero-stat-label {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.8);
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-    }}
-    
-    /* Navigation Bar académique - FIXED */
-    .nav-bar {{
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(20px);
-        padding: 1rem 2rem;
-        box-shadow: var(--shadow-md);
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        border: 1px solid var(--border-light);
-        position: sticky;
-        top: 0.5rem;
-        z-index: 1000;
-        transition: all 0.3s ease;
-    }}
+        flex-direction: column;
+        justify-content: center;
+    }
     
-    .nav-brand {{
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }}
-    
-    .nav-brand-icon {{
-        font-size: 1.5rem;
-        color: var(--gold);
-        background: rgba(212, 168, 83, 0.1);
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+    .hero-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid var(--gold);
-    }}
+        font-size: 28px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+        animation: float 6s ease-in-out infinite;
+    }
     
-    .nav-brand-text {{
-        display: flex;
-        flex-direction: column;
-    }}
-    
-    .nav-brand-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.2rem;
+    .hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 26px;
         font-weight: 700;
-        background: var(--gradient-navy);
+        margin-bottom: 15px;
+        line-height: 1.2;
+        background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        line-height: 1.2;
-    }}
+        background-clip: text;
+    }
     
-    .nav-brand-subtitle {{
+    .hero-subtitle {
         font-family: 'Inter', sans-serif;
-        font-size: 0.65rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-    }}
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
     
-    .nav-info {{
+    .features-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 25px;
+    }
+    
+    .feature-item {
         display: flex;
         align-items: center;
-        gap: 1.2rem;
+        gap: 10px;
         font-family: 'Inter', sans-serif;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }}
+        font-size: 13px;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
     
-    .nav-info-item {{
+    .feature-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateX(5px);
+    }
+    
+    .feature-item::before {
+        content: '✓';
+        color: var(--accent-gold);
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    /* Form section - FIXED HEIGHT */
+    .form-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        padding: 20px 30px;
+        margin-top:-50px;
+    }
+    
+    /* Header */
+    .auth-header {
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    }
+    
+    .branding {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-    }}
+        gap: 10px;
+    }
     
-    .nav-buttons {{
-        display: flex;
-        gap: 0.8rem;
-    }}
-    
-    .nav-btn-academic {{
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.6rem 1.2rem;
-        background: var(--gradient-navy);
-        border-radius: 0.6rem;
-        color: white;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 0.8rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        border: none;
-        cursor: pointer;
-    }}
-    
-    .nav-btn-academic:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(10, 20, 41, 0.2);
-    }}
-    
-    .nav-btn-outline-academic {{
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.6rem 1.2rem;
-        border: 2px solid var(--navy-light);
-        border-radius: 0.6rem;
-        color: var(--navy-light);
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 0.8rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }}
-    
-    .nav-btn-outline-academic:hover {{
-        background: var(--navy-light);
-        color: white;
-        transform: translateY(-2px);
-    }}
-    
-    /* Section Title académique */
-    .section-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.8rem;
-        position: relative;
-        display: inline-block;
-    }}
-    
-    .section-title::after {{
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 4rem;
-        height: 4px;
-        background: white ;
-        border-radius: 2px;
-        color: white;
-                
-                
-    }}
-    
-    /* Stats Grid amélioré */
-    .stats-grid {{
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.2rem;
-        margin-bottom: 2.5rem;
-        margin-top:1rem;
-    }}
-    
-    .stat-card-academic {{
-        background: var(--gradient-card);
-        border-radius: 1rem;
-        padding: 1.8rem;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
-    }}
-    
-    .stat-card-academic:hover {{
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--gold);
-    }}
-    
-    .stat-card-academic::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--gradient-gold);
-    }}
-    
-    .stat-icon-academic {{
-        font-size: 2rem;
-        margin-bottom: 1rem;
-        background: rgba(212, 168, 83, 0.1);
-        width: 55px;
-        height: 55px;
+    .logo {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid rgba(212, 168, 83, 0.3);
-    }}
+        font-size: 22px;
+        color: white;
+        box-shadow: 0 8px 20px rgba(10, 20, 41, 0.2);
+    }
     
-    .stat-number-academic {{
-        font-family: 'Playfair Display', serif;
-        font-size: 2.2rem;
+    .brand-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: 22px;
         font-weight: 700;
-        color: var(--navy);
-        line-height: 1;
-        margin-bottom: 0.4rem;
-        display: flex;
-        align-items: baseline;
-        gap: 0.2rem;
-    }}
+        color: var(--text-primary);
+    }
     
-    .stat-suffix-academic {{
-        font-size: 1rem;
-        color: var(--text-muted);
-        font-weight: 500;
-    }}
-    
-    .stat-label-academic {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.8rem;
+    .beta-tag {
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%);
+        color: var(--primary-dark);
+        font-size: 10px;
         font-weight: 600;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        margin-bottom: 0.4rem;
-    }}
+        padding: 3px 8px;
+        border-radius: 15px;
+        margin-left: 8px;
+        letter-spacing: 0.5px;
+    }
     
-    .stat-description {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        line-height: 1.4;
-        margin-top: 0.4rem;
-    }}
-    
-    /* Features Grid académique */
-    .features-grid {{
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
-    }}
-    
-    .feature-card-academic {{
-        background: var(--card-bg);
-        border-radius: 1rem;
-        padding: 2rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
-        position: relative;
-        overflow: hidden;
-        margin-top:1rem;      
-    }}
-    
-    .feature-card-academic:hover {{
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--gold);
-    }}
-    
-    .feature-card-academic::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--gradient-gold);
-    }}
-    
-    .feature-icon-academic {{
-        width: 60px;
-        height: 60px;
-        background: var(--gradient-navy);
-        border-radius: 0.8rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        font-size: 1.5rem;
-        color: white;
-        box-shadow: 0 6px 16px rgba(10, 20, 41, 0.15);
-    }}
-    
-    .feature-title-academic {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.3rem;
+    .page-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 26px;
         font-weight: 700;
-        color: var(--navy);
-        margin-bottom: 0.8rem;
-        line-height: 1.3;
-    }}
-    
-    .feature-description-academic {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        line-height: 1.5;
-        margin-bottom: 1rem;
-    }}
-    
-    .feature-list-academic {{
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }}
-    
-    .feature-list-academic li {{
-        display: flex;
-        align-items: flex-start;
-        gap: 0.8rem;
-        padding: 0.6rem 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: var(--text-dark);
-        border-bottom: 1px solid var(--border-light);
-    }}
-    
-    .feature-list-academic li:last-child {{
-        border-bottom: none;
-    }}
-    
-    .feature-list-academic li::before {{
-        content: '✓';
-        color: var(--gold);
-        font-weight: 700;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-        margin-top: 0.1rem;
-    }}
-    
-    /* Roles Grid académique */
-    .roles-grid {{
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.2rem;
-        margin-bottom: 2.5rem;
-    }}
-    
-    .role-card-academic {{
-        background: var(--gradient-card);
-        border-radius: 1rem;
-        padding: 2rem 1.5rem;
-        text-align: center;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
-        position: relative;
-        overflow: hidden;
-        margin-top:1rem
-    }}
-    
-    .role-card-academic:hover {{
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--gold);
-    }}
-    
-    .role-card-academic::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--gradient-gold);
-    }}
-    
-    .role-icon-academic {{
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: var(--navy);
-        background: rgba(212, 168, 83, 0.1);
-        width: 75px;
-        height: 75px;
-        border-radius: 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid rgba(212, 168, 83, 0.3);
-    }}
-    
-    .role-title-academic {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--navy);
-        margin-bottom: 1rem;
-    }}
-    
-    .role-features-academic {{
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }}
-    
-    .role-features-academic li {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        padding: 0.6rem 0;
-        position: relative;
-    }}
-    
-    .role-features-academic li::before {{
-        content: '•';
-        color: var(--gold);
-        font-weight: bold;
-        position: absolute;
-        left: -0.8rem;
-        font-size: 1rem;
-    }}
-    
-    /* CTA Section académique */
-    .cta-section-academic {{
-        text-align: center;
-        padding: 3rem 1.5rem;
-        margin: 2.5rem 0;
-        background: var(--gradient-academic);
-        border-radius: 1.5rem;
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    .cta-section-academic::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4a853' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-    }}
-    
-    .cta-title-academic {{
-        font-family: 'Playfair Display', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: white !important;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 2;
-    }}
-    
-    .cta-subtitle-academic {{
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 2rem;
-        max-width: 600px;
-        line-height: 1.6;
-        position: relative;
-        z-index: 2;
-        margin-left: auto;
-        margin-right: auto;
-    }}
-    
-    /* Custom Streamlit Button académique */
-    .stButton > button {{
-        /* Base styling */
-        background: linear-gradient(135deg, #D4A853 0%, #B38B3C 50%, #9A7732 100%) !important;
-        color: #0A1931 !important;
-        border: none !important;
-        padding: 1rem 3rem !important;
-        border-radius: 0.8rem !important;
-        font-family: 'Inter', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        letter-spacing: 0.02em !important;
-        cursor: pointer !important;
-        
-        /* Layout & positioning */
-        position: relative !important;
-        overflow: hidden !important;
-        isolation: isolate !important;
-        outline: none !important;
-        
-        /* Transitions */
-        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-        
-        /* Shadows */
-        box-shadow: 
-            0 4px 14px rgba(212, 168, 83, 0.25),
-            0 1px 3px rgba(0, 0, 0, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-        
-        /* Text rendering */
-        text-transform: none !important;
-        text-decoration: none !important;
-        white-space: nowrap !important;
-        user-select: none !important;
-        
-        /* Performance */
-        backface-visibility: hidden !important;
-        transform: translateZ(0) !important;
-    }}
-
-    /* Hover state */
-    .stButton > button:hover {{
-        transform: translateY(-2px) !important;
-        box-shadow: 
-            0 8px 20px rgba(212, 168, 83, 0.35),
-            0 3px 6px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-    }}
-
-    /* Active/Click state */
-    .stButton > button:active {{
-        transform: translateY(0) !important;
-        box-shadow: 
-            0 2px 8px rgba(212, 168, 83, 0.3),
-            0 1px 2px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-        transition-duration: 0.1s !important;
-    }}
-
-    /* Focus state for accessibility */
-    .stButton > button:focus {{
-        outline: 2px solid rgba(212, 168, 83, 0.6) !important;
-        outline-offset: 2px !important;
-    }}
-
-    /* Disabled state */
-    .stButton > button:disabled {{
-        opacity: 0.6 !important;
-        cursor: not-allowed !important;
-        transform: none !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
-    }}
-
-    /* Shine effect on hover */
-    .stButton > button::after {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 50%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2),
-            transparent
-        );
-        transition: left 0.7s ease !important;
-        z-index: 1;
-    }}
-
-    .stButton > button:hover::after {{
-        left: 100%;
-    }}
-
-    /* Ensure text stays above shine effect */
-    .stButton > button > * {{
-        position: relative;
-        z-index: 2;
-    }}
-
-    /* Add a subtle border for depth (optional) */
-    .stButton > button::before {{
-        content: '';
-        position: absolute;
-        inset: 1px;
-        border-radius: calc(0.8rem - 1px);
-        background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.1) 0%,
-            rgba(0, 0, 0, 0.05) 100%
-        );
-        pointer-events: none;
-        z-index: 1;
-    }}
-    
-    /* Footer académique */
-    .footer-academic {{
-        background: var(--gradient-academic);
-        padding: 3rem 1.5rem 2rem;
-        border-radius: 1rem 1rem 0 0;
-        margin: 3rem -1rem -1rem -1rem;
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    .footer-academic::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: var(--gradient-gold);
-    }}
-    
-    .footer-content {{
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-    }}
-    
-    .footer-brand-academic {{
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }}
-    
-    .footer-brand-header {{
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }}
-    
-    .footer-brand-icon {{
-        font-size: 2rem;
-        color: var(--gold);
-    }}
-    
-    .footer-brand-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: white;
+        color: var(--text-primary);
+        margin-bottom: 8px;
         line-height: 1.2;
-    }}
+    }
     
-    .footer-brand-subtitle {{
+    .page-subtitle {
         font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-top: 0.2rem;
-    }}
-    
-    .footer-description {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+        color: var(--text-secondary);
         line-height: 1.5;
-    }}
+    }
     
-    .footer-section {{
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }}
+    /* Form styling */
+    .form-group {
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        opacity: 0;
+    }
     
-    .footer-section-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.4rem;
-    }}
+    .form-group:nth-child(1) { animation-delay: 0.3s; }
+    .form-group:nth-child(2) { animation-delay: 0.4s; }
     
-    .footer-links {{
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-    }}
+    .custom-label {
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: var(--text-primary) !important;
+        letter-spacing: 0.5px !important;
+        display: block;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
     
-    .footer-links a {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-    }}
+    input:focus-visible {
+        outline: none !important;
+    }
     
-    .footer-links a:hover {{
-        color: var(--gold-light);
-        transform: translateX(3px);
-    }}
-    
-    .footer-contact-info {{
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-    }}
-    
-    .footer-contact-item {{
-        display: flex;
-        align-items: flex-start;
-        gap: 0.6rem;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-    }}
-    
-    .footer-bottom {{
-        max-width: 1200px;
-        margin: 2rem auto 0;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    /* Checkbox and forgot password */
+    .options-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }}
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+        margin: 20px 0;
+    }
     
-    .footer-copyright {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.5);
-    }}
-    
-    .footer-legal {{
+    .checkbox-container {
         display: flex;
-        gap: 1rem;
-    }}
+        align-items: center;
+        gap: 8px;
+    }
     
-    .footer-legal a {{
+    .checkbox-container input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent-gold);
+        cursor: pointer;
+    }
+    
+    .checkbox-label {
         font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+        color: var(--text-primary);
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .forgot-password {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: var(--accent-gold);
         text-decoration: none;
-        transition: all 0.3s ease;
-    }}
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
     
-    .footer-legal a:hover {{
-        color: var(--gold-light);
-    }}
+    .forgot-password:hover {
+        text-decoration: underline;
+        color: var(--primary-dark);
+    }
     
-    /* Responsive Design */
-    @media (max-width: 1024px) {{
-        .hero-container {{
-            grid-template-columns: 1fr;
-            text-align: center;
-            gap: 2rem;
-            padding: 2rem 1rem;
-        }}
-        
-        .hero-content {{
-            padding-left: 0;
-        }}
-        
-        .hero-subtitle {{
-            max-width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-        }}
-        
-        .hero-image-container {{
-            height: 280px;
-            max-width: 500px;
-            margin: 0 auto;
-        }}
-    }}
+    /* Login button */
+    .stButton > button {
+        width: 100% !important;
+        height: 48px !important;
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #f6d365 100%) !important;
+        color: var(--primary-dark) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.4) !important;
+        transition: all 0.3s ease !important;
+        position: relative;
+        overflow: hidden;
+    }
     
-    @media (max-width: 768px) {{
-        .hero-title {{
-            font-size: 2rem;
-        }}
-        
-        .hero-buttons {{
-            flex-direction: column;
-            align-items: center;
-        }}
-        
-        .nav-bar {{
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-            padding: 1rem;
-        }}
-        
-        .nav-info {{
-            flex-wrap: wrap;
-            justify-content: center;
-        }}
-        
-        .nav-buttons {{
-            flex-wrap: wrap;
-            justify-content: center;
-        }}
-        
-        .section-title {{
-            font-size: 1.5rem;
-        }}
-        
-        .feature-card-academic,
-        .role-card-academic,
-        .stat-card-academic {{
-            padding: 1.5rem;
-        }}
-        
-        .cta-section-academic {{
-            padding: 2rem 1rem;
-        }}
-        
-        .cta-title-academic {{
-            font-size: 1.8rem;
-        }}
-        
-        .footer-content {{
-            grid-template-columns: 1fr;
-            text-align: center;
-        }}
-        
-        .footer-links a,
-        .footer-contact-item {{
-            justify-content: center;
-        }}
-        
-        .footer-bottom {{
-            flex-direction: column;
-            text-align: center;
-        }}
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Navigation Bar
-    current_date = datetime.now().strftime("%d/%m/%Y")
-    current_time = datetime.now().strftime("%H:%M")
+    .stButton > button:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 12px 30px rgba(212, 168, 83, 0.5) !important;
+    }
     
-    st.markdown(f"""
-    <div class="nav-bar">
-        <div class="nav-brand">
-            <div class="nav-brand-icon">
-                {ACADEMIC_EMOJIS['university']}
-            </div>
-            <div class="nav-brand-text">
-                <div class="nav-brand-title">Gestion Examens Pro</div>
-                <div class="nav-brand-subtitle">Plateforme Académique Officielle</div>
-            </div>
-        </div>
-        <div class="nav-info">
-            <div class="nav-info-item">
-                <span>{ACADEMIC_EMOJIS['calendar_day']}</span>
-                <span>{current_date}</span>
-            </div>
-            <div class="nav-info-item">
-                <span>{ACADEMIC_EMOJIS['time']}</span>
-                <span>{current_time}</span>
-            </div>
-            <div class="nav-info-item">
-                <span>{ACADEMIC_EMOJIS['location']}</span>
-                <span>Université Boumerdes</span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Hero Section avec colonnes Streamlit
-    col1, col2 = st.columns([1, 1], gap="large")
+    .stButton > button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
     
-    with col1:
-        st.markdown(f"""
-        <div class="hero-content">
-            <div class="hero-badge">
-                {ACADEMIC_EMOJIS['university']} Système Académique Officiel
-            </div>
-            <h1 class="hero-title">
-                {ACADEMIC_EMOJIS['system']} Système de Gestion <span>des Examens</span>
-            </h1>
-            <p class="hero-subtitle">
-                Solution complète et intuitive pour la planification, l'organisation et la gestion optimisée des examens universitaires. 
-                Gérez vos sessions d'examens avec efficacité et précision professionnelle.
-            </p>
-            <div class="hero-buttons">
-                <a class="hero-button-primary">
-                    <span>{ACADEMIC_EMOJIS['calendar']} Données fiables et mises à jour </span>
-                </a>
-                <a class="hero-button-secondary">
-                    <span>{ACADEMIC_EMOJIS['stats']} Disponible 24h/24 et 7j/7</span>
-                    <span>{ACADEMIC_EMOJIS['analytics']}</span>
-                </a>
-            </div>
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <div class="hero-stat-number">10+</div>
-                    <div class="hero-stat-label">Établissements</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-number">500+</div>
-                    <div class="hero-stat-label">Examens gérés</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-number">99.8%</div>
-                    <div class="hero-stat-label">Satisfaction</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    .stButton > button:focus:not(:active)::after {
+        animation: ripple 1s ease-out;
+    }
     
-    with col2:
-        # Container pour l'image avec style CSS
-        # Afficher l'image avec Streamlit
-        st.image(pil_image, use_container_width=True, 
-                caption="", 
-                output_format="auto")
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Modified columns layout for two buttons
-    col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
-    
-    with col2:
-        if st.button(f"{ACADEMIC_EMOJIS['calendar']} Voir Planning", use_container_width=True, type="secondary"):
-            st.switch_page("pages/app_etudiant.py")
-    
-    with col4:
-        if st.button(f"{ACADEMIC_EMOJIS['key']} Connexion", use_container_width=True, type="primary"):
-            st.switch_page("pages/log.py")
-    
-    # Statistiques principales
-    st.markdown(f'<h2 class="section-title">{ACADEMIC_EMOJIS["dashboard"]} Tableau de Bord Global</h2>', unsafe_allow_html=True)
-    
-    with st.spinner("Chargement des statistiques académiques..."):
-        time.sleep(0.5)
-        
-        st.markdown(f"""
-        <div class="stats-grid">
-            <div class="stat-card-academic">
-                <div class="stat-icon-academic">{ACADEMIC_EMOJIS['department']}</div>
-                <div class="stat-number-academic">12<span class="stat-suffix-academic">+</span></div>
-                <div class="stat-label-academic">Départements Actifs</div>
-                <div class="stat-description">Filières académiques en activité</div>
-            </div>
-            <div class="stat-card-academic">
-                <div class="stat-icon-academic">{ACADEMIC_EMOJIS['graduation']}</div>
-                <div class="stat-number-academic">28<span class="stat-suffix-academic"></span></div>
-                <div class="stat-label-academic">Formations Diplômantes</div>
-                <div class="stat-description">Programmes de formation accrédités</div>
-            </div>
-            <div class="stat-card-academic">
-                <div class="stat-icon-academic">{ACADEMIC_EMOJIS['teacher']}</div>
-                <div class="stat-number-academic">245<span class="stat-suffix-academic"></span></div>
-                <div class="stat-label-academic">Enseignants-Chercheurs</div>
-                <div class="stat-description">Corps professoral qualifié</div>
-            </div>
-            <div class="stat-card-academic">
-                <div class="stat-icon-academic">{ACADEMIC_EMOJIS['student']}</div>
-                <div class="stat-number-academic">13000<span class="stat-suffix-academic"></span></div>
-                <div class="stat-label-academic">Étudiants Inscrits</div>
-                <div class="stat-description">Effectif étudiant actuel</div>
-            </div>
-            <div class="stat-card-academic">
-                <div class="stat-icon-academic">{ACADEMIC_EMOJIS['module']}</div>
-                <div class="stat-number-academic">186<span class="stat-suffix-academic"></span></div>
-                <div class="stat-label-academic">Unités d'Enseignement</div>
-                <div class="stat-description">Modules pédagogiques actifs</div>
-            </div>
-            <div class="stat-card-academic">
-                <div class="stat-icon-academic">{ACADEMIC_EMOJIS['classroom']}</div>
-                <div class="stat-number-academic">42<span class="stat-suffix-academic"></span></div>
-                <div class="stat-label-academic">Salles d'Examen</div>
-                <div class="stat-description">Amphithéâtres et salles équipées</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Fonctionnalités principales
-    st.markdown(f'<h2 class="section-title">{ACADEMIC_EMOJIS["feature"]} Fonctionnalités Avancées</h2>', unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown(f"""
-        <div class="feature-card-academic">
-            <div class="feature-icon-academic">{ACADEMIC_EMOJIS['ai']}</div>
-            <h3 class="feature-title-academic">Intelligence Artificielle</h3>
-            <p class="feature-description-academic">
-                Planification intelligente avec algorithmes d'optimisation avancés pour une gestion optimale des ressources.
-            </p>
-            <ul class="feature-list-academic">
-                <li>Génération automatique des plannings</li>
-                <li>Détection des conflits en temps réel</li>
-                <li>Optimisation des ressources académiques</li>
-                <li>Prévision des besoins en surveillance</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown(f"""
-        <div class="feature-card-academic">
-            <div class="feature-icon-academic">{ACADEMIC_EMOJIS['mobile']}</div>
-            <h3 class="feature-title-academic">Interface Mobile</h3>
-            <p class="feature-description-academic">
-                Accédez à toutes les fonctionnalités depuis votre mobile avec une application native dédiée.
-            </p>
-            <ul class="feature-list-academic">
-                <li>Application mobile multiplateforme</li>
-                <li>Notifications push en temps réel</li>
-                <li>Scan QR code pour présence</li>
-                <li>Consultation hors ligne sécurisée</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown(f"""
-        <div class="feature-card-academic">
-            <div class="feature-icon-academic">{ACADEMIC_EMOJIS['security']}</div>
-            <h3 class="feature-title-academic">Sécurité & Conformité</h3>
-            <p class="feature-description-academic">
-                Système sécurisé conforme aux réglementations académiques et standards internationaux.
-            </p>
-            <ul class="feature-list-academic">
-                <li>Chiffrement des données de bout en bout</li>
-                <li>Audit complet des modifications</li>
-                <li>Conformité RGPD et standards</li>
-                <li>Sauvegarde automatique cloud</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Espaces personnalisés
-    st.markdown(f'<h2 class="section-title">{ACADEMIC_EMOJIS["collaboration"]} Espaces Personnalisés</h2>', unsafe_allow_html=True)
-    
-    roles_col1, roles_col2, roles_col3, roles_col4 = st.columns(4)
-    
-    with roles_col1:
-        st.markdown(f"""
-        <div class="role-card-academic">
-            <div class="role-icon-academic">{ACADEMIC_EMOJIS['admin']}</div>
-            <h4 class="role-title-academic">Administrateur</h4>
-            <ul class="role-features-academic">
-                <li>Gestion complète du système</li>
-                <li>Supervision des utilisateurs</li>
-                <li>Configuration avancée</li>
-                <li>Rapports détaillés</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with roles_col2:
-        st.markdown(f"""
-        <div class="role-card-academic">
-            <div class="role-icon-academic">{ACADEMIC_EMOJIS['dean']}</div>
-            <h4 class="role-title-academic">Direction</h4>
-            <ul class="role-features-academic">
-                <li>Vue stratégique globale</li>
-                <li>Indicateurs de performance</li>
-                <li>Validation des décisions</li>
-                <li>Planification annuelle</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with roles_col3:
-        st.markdown(f"""
-        <div class="role-card-academic">
-            <div class="role-icon-academic">{ACADEMIC_EMOJIS['coordinator']}</div>
-            <h4 class="role-title-academic">Coordination</h4>
-            <ul class="role-features-academic">
-                <li>Gestion départementale</li>
-                <li>Supervision pédagogique</li>
-                <li>Coordination des examens</li>
-                <li>Communication interne</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with roles_col4:
-        st.markdown(f"""
-        <div class="role-card-academic">
-            <div class="role-icon-academic">{ACADEMIC_EMOJIS['teacher']}</div>
-            <h4 class="role-title-academic">Enseignants</h4>
-            <ul class="role-features-academic">
-                <li>Gestion des examens</li>
-                <li>Suivi des corrections</li>
-                <li>Communication étudiants</li>
-                <li>Statistiques personnelles</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # CTA Section
-    st.markdown(f"""
-    <div class="cta-section-academic">
-        <h2 class="cta-title-academic">Prêt à optimiser vos examens ?</h2>
-        <p class="cta-subtitle-academic">
-            Rejoignez plus de 50 établissements d'enseignement supérieur qui utilisent déjà notre système 
-            pour gérer leurs examens avec efficacité, sécurité et sérénité.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # FOOTER
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #0a1429, #002147);
-        padding: 2rem;
-        color: white;
+    /* Footer */
+    .auth-footer {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
         text-align: center;
-        border-radius: 1rem;
-        margin-top: 2rem;
-    ">
-        <h3>🎓 Système de Gestion des Examens</h3>
-        <p>© 2024 Université des Sciences et Technologies</p>
-        <p>Contact: support@univ-examens.edu</p>
-    </div>
-    """, unsafe_allow_html=True)
+        animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+    }
+    
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+        color: var(--accent-gold);
+    }
+    
+    .version {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+    
+    /* Language selector */
+    .language-selector {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    
+    .language-selector select {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .login-card {
+            flex-direction: column;
+            height: auto;
+            max-height: 90vh;
+            width: 95%;
+        }
+        
+        .hero-section {
+            padding: 30px 25px;
+            border-radius: 24px 24px 0 0;
+            height: auto;
+            min-height: 250px;
+        }
+        
+        .form-section {
+            padding: 30px 25px;
+            height: auto;
+        }
+        
+        .hero-content {
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 22px;
+        }
+        
+        .hero-title {
+            font-size: 22px;
+        }
+        
+        .features-list {
+            gap: 8px;
+        }
+        
+        .feature-item {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+        
+        .login-card {
+            max-height: 95vh;
+        }
+    }
+    
+    /* Hide streamlit labels */
+    .stTextInput label,
+    .stNumberInput label {
+        display: none !important;
+    }
+    
+    /* Error/Success messages */
+    .stAlert {
+        border-radius: 12px !important;
+        border-left: none !important;
+        animation: fadeInUp 0.4s ease-out;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* Ensure form elements don't overflow */
+    form {
+        max-height: 100% !important;
+        overflow: visible !important;
+    }
+    
+    /* Prevent any scrollbars */
+    * {
+        scrollbar-width: none !important;
+    }
+    
+    *::-webkit-scrollbar {
+        display: none !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Database connection functions (same as before)
+import streamlit as st
+import mysql.connector
+from mysql.connector import Error
+
+def get_connection():
+    cfg = st.secrets["mysql"]
+    conn = mysql.connector.connect(
+        host=cfg["host"],
+        port=int(cfg["port"]),
+        database=cfg["database"],
+        user=cfg["user"],
+        password=cfg["password"],
+        autocommit=True,
+        connection_timeout=10
+    )
+    return conn
+
+
+def run_query(query, params=None, fetch=True):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute(query, params or ())
+
+        if fetch:
+            result = cursor.fetchall()
+        else:
+            conn.commit()
+            result = True
+
+        cursor.close()
+        conn.close()   # 🔥 IMPORTANT
+        return result
+
+    except Error as e:
+        st.error(f"Database error: {e}")
+        return None
+
+def authenticate_user(user_id, password):
+    if conn is None:
+        return False
+    query = """
+        SELECT u.*, p.nom, p.prenom, p.dept_id, d.nom as departement
+        FROM utilisateurs u
+        LEFT JOIN professeurs p ON u.id = p.id
+        LEFT JOIN departements d ON p.dept_id = d.id
+        WHERE u.id = %s AND u.mot_de_passe = %s
+    """
+    result = run_query(query, (user_id, password))
+    if result:
+        user = result[0]
+        st.session_state['logged_in'] = True
+        st.session_state['user_id'] = user['id']
+        st.session_state['role'] = user['role']
+        st.session_state['nom_complet'] = f"{user.get('prenom','')} {user.get('nom','')}".strip()
+        st.session_state['departement_id'] = user.get('dept_id')
+        st.session_state['departement'] = user.get('departement')
+        return True
+    return False
+
+def main():
+    # Create two columns with specific heights
+    col1, col2 = st.columns([1.4, 1])
+    
+    # HERO SECTION (Left Column)
+    with col1:
+        st.markdown("""
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-icon">🎓</div>
+                <h1 class="hero-title">Système de Gestion des Examens</h1>
+                <p class="hero-subtitle">
+                    Plateforme intelligente pour la planification, surveillance et évaluation 
+                    des examens universitaires.
+                </p>
+                <div class="features-list">
+                    <div class="feature-item">Interface intuitive et moderne</div>
+                    <div class="feature-item">Sécurité et authentification renforcées</div>
+                    <div class="feature-item">Gestion centralisée des examens</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # FORM SECTION (Right Column)
+    with col2:
+        # Container for form section
+        st.markdown('<div class="form-section">', unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="auth-header">
+            <div class="branding">
+                <div class="logo">🔐</div>
+                <div class="brand-name">ExamensPro</div>
+                <div class="beta-tag">BETA</div>
+            </div>
+            <h1 class="page-title">Connexion Sécurisée</h1>
+            <p class="page-subtitle">Accédez à votre espace personnel</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Login form with fixed height container
+        with st.container():
+            with st.form("login_form", clear_on_submit=True):
+                # User ID field
+                st.markdown('<div class="form-group">', unsafe_allow_html=True)
+                st.markdown('<span class="custom-label">IDENTIFIANT UTILISATEUR</span>', unsafe_allow_html=True)
+                user_id = st.number_input(
+                    "ID Utilisateur",
+                    min_value=1,
+                    step=1,
+                    key="user_id_input",
+                    label_visibility="collapsed",
+                    placeholder="Entrez votre identifiant"
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Password field
+                st.markdown('<div class="form-group">', unsafe_allow_html=True)
+                st.markdown('<span class="custom-label">MOT DE PASSE</span>', unsafe_allow_html=True)
+                password = st.text_input(
+                    "Mot de passe",
+                    type="password",
+                    key="password",
+                    label_visibility="collapsed",
+                    placeholder="••••••••••••"
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Options row
+                st.markdown("""
+                <div class="options-row">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="remember" checked>
+                        <label for="remember" class="checkbox-label">Se souvenir</label>
+                    </div>
+                    <a class="forgot-password" href="#" onclick="alert('Contactez l\\'administrateur système pour réinitialiser votre mot de passe.'); return false;">
+                        Mot de passe oublié ?
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Login button
+                submit = st.form_submit_button("🔐 SE CONNECTER", type="primary", use_container_width=True)
+                
+                if submit:
+                    if not user_id or not password:
+                        st.error("⛔ Veuillez remplir tous les champs obligatoires")
+                    else:
+                        # Create a progress bar
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+                        
+                        # Simulate loading with progress
+                        for percent in range(101):
+                            time.sleep(0.01)
+                            progress_bar.progress(percent)
+                            if percent < 30:
+                                status_text.text("🔍 Vérification...")
+                            elif percent < 70:
+                                status_text.text("🔐 Authentification...")
+                            elif percent < 90:
+                                status_text.text("👤 Chargement...")
+                            else:
+                                status_text.text("✅ Connexion...")
+                        
+                        # Clear progress elements
+                        progress_bar.empty()
+                        status_text.empty()
+                        
+                        # Authenticate
+                        if authenticate_user(int(user_id), password):
+                            # Success message
+                            st.success("""
+                            🎉 **Connexion réussie !**  
+                            Bienvenue dans le système de gestion des examens.
+                            """)
+                            st.balloons()
+                            
+                            # Show welcome message
+                            if 'nom_complet' in st.session_state:
+                                st.info(f"**👋 Bienvenue, {st.session_state['nom_complet']} !**")
+                            
+                            # Short delay before redirect
+                            time.sleep(1.5)
+                            
+                            # Redirect based on role
+                            role = st.session_state.get('role', '').lower()
+                            if 'professeur' in role:
+                                st.switch_page("pages/app_professeur.py")
+                            elif 'admin' in role:
+                                st.switch_page("pages/app_admin.py")
+                            elif 'doyen' in role:
+                                st.switch_page("pages/app_vice_doyen.py")
+                            elif 'chef' in role:
+                                st.switch_page("pages/app_chef_departement.py")
+                            else:
+                                st.switch_page("app.py")
+                        else:
+                            st.error("""
+                            ❌ **Échec de l'authentification**  
+                            Veuillez vérifier vos identifiants et réessayer.
+                            """)
+
 
 if __name__ == "__main__":
     main()
