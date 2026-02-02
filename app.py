@@ -269,7 +269,7 @@ def main():
         gap: 3rem;
         align-items: center;
         padding: 3rem 1.5rem;
-        background: var(--gradient-academic);
+        background: linear-gradient(135deg, #0a1429, #002147);
         border-radius: 0 0 1.5rem 1.5rem;
         margin: -1rem -1rem 2rem -1rem;
         min-height: 450px;
