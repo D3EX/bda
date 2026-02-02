@@ -575,7 +575,7 @@ def main():
         left: 0;
         width: 4rem;
         height: 4px;
-        background: var(--gradient-gold);
+        background: white ;
         border-radius: 2px;
     }}
     
