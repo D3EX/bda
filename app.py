@@ -1270,58 +1270,55 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-   # HERO WRAPPER START  👇👇👇
-st.markdown('<div class="hero-container">', unsafe_allow_html=True)
-
-col1, col2 = st.columns([1, 1], gap="large")
-
-with col1:
-    st.markdown(f"""
-    <div class="hero-content">
-        <div class="hero-badge">
-            {ACADEMIC_EMOJIS['university']} Système Académique Officiel
-        </div>
-        <h1 class="hero-title">
-            {ACADEMIC_EMOJIS['system']} Système de Gestion <span>des Examens</span>
-        </h1>
-        <p class="hero-subtitle">
-            Solution complète et intuitive pour la planification, l'organisation et la gestion optimisée des examens universitaires. 
-            Gérez vos sessions d'examens avec efficacité et précision professionnelle.
-        </p>
-        <div class="hero-buttons">
-            <a class="hero-button-primary">
-                <span>{ACADEMIC_EMOJIS['calendar']} Données fiables et mises à jour </span>
-            </a>
-            <a class="hero-button-secondary">
-                <span>{ACADEMIC_EMOJIS['stats']} Disponible 24h/24 et 7j/7</span>
-                <span>{ACADEMIC_EMOJIS['analytics']}</span>
-            </a>
-        </div>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-number">10+</div>
-                <div class="hero-stat-label">Établissements</div>
+    # Hero Section avec colonnes Streamlit
+    col1, col2 = st.columns([1, 1], gap="large")
+    
+    with col1:
+        st.markdown(f"""
+        <div class="hero-content">
+            <div class="hero-badge">
+                {ACADEMIC_EMOJIS['university']} Système Académique Officiel
             </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">500+</div>
-                <div class="hero-stat-label">Examens gérés</div>
+            <h1 class="hero-title">
+                {ACADEMIC_EMOJIS['system']} Système de Gestion <span>des Examens</span>
+            </h1>
+            <p class="hero-subtitle">
+                Solution complète et intuitive pour la planification, l'organisation et la gestion optimisée des examens universitaires. 
+                Gérez vos sessions d'examens avec efficacité et précision professionnelle.
+            </p>
+            <div class="hero-buttons">
+                <a class="hero-button-primary">
+                    <span>{ACADEMIC_EMOJIS['calendar']} Données fiables et mises à jour </span>
+                </a>
+                <a class="hero-button-secondary">
+                    <span>{ACADEMIC_EMOJIS['stats']} Disponible 24h/24 et 7j/7</span>
+                    <span>{ACADEMIC_EMOJIS['analytics']}</span>
+                </a>
             </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">99.8%</div>
-                <div class="hero-stat-label">Satisfaction</div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-number">10+</div>
+                    <div class="hero-stat-label">Établissements</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">500+</div>
+                    <div class="hero-stat-label">Examens gérés</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">99.8%</div>
+                    <div class="hero-stat-label">Satisfaction</div>
+                </div>
             </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown('<div class="hero-image-container">', unsafe_allow_html=True)
-    st.image(pil_image, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# HERO WRAPPER END 👇👇👇
-    st.markdown('</div>', unsafe_allow_html=True)
-
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        # Container pour l'image avec style CSS
+        # Afficher l'image avec Streamlit
+        st.image(pil_image, use_container_width=True, 
+                caption="", 
+                output_format="auto")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
