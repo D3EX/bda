@@ -76,144 +76,144 @@ def load_image():
 
 # Emojis académiques professionnels
 ACADEMIC_EMOJIS = {
-    "system": "📚",
-    "dashboard": "📊",
-    "calendar": "📅",
-    "teacher": "👨‍🏫",
-    "student": "👨‍🎓",
-    "department": "🏛️",
-    "module": "📖",
-    "classroom": "🏫",
-    "exam": "✍️",
-    "schedule": "⏱️",
-    "admin": "🔧",
-    "dean": "🎖️",
-    "coordinator": "🤝",
+    "system": "📚",  # Livres pour système
+    "dashboard": "📊",  # Graphiques
+    "calendar": "📅",  # Calendrier
+    "teacher": "👨‍🏫",  # Professeur
+    "student": "👨‍🎓",  # Étudiant diplômé
+    "department": "🏛️",  # Bâtiment institutionnel
+    "module": "📖",  # Livre ouvert
+    "classroom": "🏫",  # École
+    "exam": "✍️",  # Main écrivant
+    "schedule": "⏱️",  # Minuterie
+    "admin": "🔧",  # Outil
+    "dean": "🎖️",  # Médaille
+    "coordinator": "🤝",  # Poignée de main
     "security": "🔒",  
-    "ai": "🤖",
-    "mobile": "📱",
-    "stats": "📈",
-    "report": "📋",
-    "notification": "🔔",
-    "export": "📤",
-    "import": "📥",
-    "settings": "⚙️",
-    "help": "❓",
-    "time": "🕒",
-    "location": "📍",
-    "email": "📧",
-    "phone": "📞",
-    "university": "🎓",
-    "graduation": "🎓",
-    "diploma": "📜",
-    "research": "🔬",
-    "library": "📚",
-    "computer": "💻",
-    "cloud": "☁️",
-    "database": "🗄️",
-    "network": "🌐",
-    "analytics": "📊",
-    "quality": "⭐",
-    "innovation": "💡",
-    "collaboration": "👥",
-    "success": "✅",
-    "warning": "⚠️",
-    "error": "❌",
-    "loading": "⏳",
-    "check": "✓",
-    "arrow": "→",
-    "refresh": "🔄",
-    "search": "🔍",
-    "filter": "🔎",
-    "sort": "↕️",
-    "download": "⬇️",
-    "upload": "⬆️",
-    "print": "🖨️",
-    "save": "💾",
-    "edit": "✏️",
-    "delete": "🗑️",
-    "add": "➕",
-    "remove": "➖",
-    "view": "👁️",
-    "hide": "👁️‍🗨️",
-    "lock": "🔐",
-    "unlock": "🔓",
-    "key": "🔑",
-    "home": "🏠",
-    "back": "↩️",
-    "forward": "↪️",
-    "up": "⬆️",
-    "down": "⬇️",
-    "left": "⬅️",
-    "right": "➡️",
-    "menu": "☰",
-    "close": "✕",
-    "info": "ℹ️",
-    "question": "❔",
-    "exclamation": "❗",
-    "star": "★",
-    "heart": "❤️",
-    "flag": "🏁",
-    "trophy": "🏆",
-    "medal": "🥇",
-    "certificate": "📜",
-    "book": "📘",
-    "notebook": "📓",
-    "pen": "🖊️",
-    "paper": "📄",
-    "clipboard": "📋",
-    "folder": "📁",
-    "archive": "🗃️",
-    "bell": "🔔",
-    "megaphone": "📣",
-    "speech": "💬",
-    "thought": "💭",
-    "money": "💰",
-    "budget": "💵",
-    "growth": "📈",
-    "decline": "📉",
-    "stable": "📊",
-    "target": "🎯",
-    "goal": "🥅",
-    "plan": "🗺️",
-    "strategy": "♟️",
-    "team": "👨‍👩‍👧‍👦",
-    "meeting": "👥",
-    "presentation": "📽️",
-    "video": "📹",
-    "audio": "🎧",
-    "image": "🖼️",
-    "link": "🔗",
-    "attachment": "📎",
-    "zip": "🗜️",
-    "code": "💻",
-    "bug": "🐛",
-    "feature": "✨",
-    "update": "🔄",
-    "version": "🏷️",
-    "release": "🚀",
-    "launch": "🎆",
-    "celebration": "🎉",
-    "party": "🥳",
-    "confetti": "🎊",
-    "clock": "🕰️",
-    "watch": "⌚",
-    "alarm": "⏰",
-    "timer": "⏲️",
-    "stopwatch": "⏱️",
-    "calendar_day": "📆",
-    "date": "📅",
-    "event": "📅",
-    "reminder": "🗓️",
-    "deadline": "⏳",
-    "urgent": "🚨",
-    "important": "‼️",
-    "priority": "🔥",
-    "critical": "💥",
-    "normal": "🟢",
-    "low": "🟡",
-    "medium": "🟠",
-    "high": "🔴",
+    "ai": "🤖",  # Robot
+    "mobile": "📱",  # Smartphone
+    "stats": "📈",  # Graphique croissant
+    "report": "📋",  # Liste
+    "notification": "🔔",  # Cloche
+    "export": "📤",  # Flèche sortante
+    "import": "📥",  # Flèche entrante
+    "settings": "⚙️",  # Engrenage
+    "help": "❓",  # Point d'interrogation
+    "time": "🕒",  # Horloge
+    "location": "📍",  # Épingle de carte
+    "email": "📧",  # Enveloppe
+    "phone": "📞",  # Téléphone
+    "university": "🎓",  # Mortier de diplômé
+    "graduation": "🎓",  # Mortier
+    "diploma": "📜",  # Parchemin
+    "research": "🔬",  # Microscope
+    "library": "📚",  # Livres
+    "computer": "💻",  # Ordinateur portable
+    "cloud": "☁️",  # Nuage
+    "database": "🗄️",  # Fichier
+    "network": "🌐",  # Globe
+    "analytics": "📊",  # Tableau de bord
+    "quality": "⭐",  # Étoile
+    "innovation": "💡",  # Ampoule
+    "collaboration": "👥",  # Silhouettes
+    "success": "✅",  # Coches
+    "warning": "⚠️",  # Attention
+    "error": "❌",  # Croix
+    "loading": "⏳",  # Sablier
+    "check": "✓",  # Check
+    "arrow": "→",  # Flèche
+    "refresh": "🔄",  # Flèches circulaires
+    "search": "🔍",  # Loupe
+    "filter": "🔎",  # Loupe avec zoom
+    "sort": "↕️",  # Flèches haut/bas
+    "download": "⬇️",  # Flèche bas
+    "upload": "⬆️",  # Flèche haut
+    "print": "🖨️",  # Imprimante
+    "save": "💾",  # Disquette
+    "edit": "✏️",  # Crayon
+    "delete": "🗑️",  # Corbeille
+    "add": "➕",  # Plus
+    "remove": "➖",  # Moins
+    "view": "👁️",  # Œil
+    "hide": "👁️‍🗨️",  # Œil barré
+    "lock": "🔐",  # Cadenas fermé
+    "unlock": "🔓",  # Cadenas ouvert
+    "key": "🔑",  # Clé
+    "home": "🏠",  # Maison
+    "back": "↩️",  # Flèche retour
+    "forward": "↪️",  # Flèche avant
+    "up": "⬆️",  # Flèche haut
+    "down": "⬇️",  # Flèche bas
+    "left": "⬅️",  # Flèche gauche
+    "right": "➡️",  # Flèche droite
+    "menu": "☰",  # Menu hamburger
+    "close": "✕",  # Croix
+    "info": "ℹ️",  # Information
+    "question": "❔",  # Point d'interrogation
+    "exclamation": "❗",  # Point d'exclamation
+    "star": "★",  # Étoile pleine
+    "heart": "❤️",  # Cœur
+    "flag": "🏁",  # Drapeau
+    "trophy": "🏆",  # Trophée
+    "medal": "🥇",  # Médaille or
+    "certificate": "📜",  # Certificat
+    "book": "📘",  # Livre bleu
+    "notebook": "📓",  # Cahier
+    "pen": "🖊️",  # Stylo
+    "paper": "📄",  # Page
+    "clipboard": "📋",  # Presse-papier
+    "folder": "📁",  # Dossier
+    "archive": "🗃️",  # Boîte d'archives
+    "bell": "🔔",  # Cloche
+    "megaphone": "📣",  # Mégaphone
+    "speech": "💬",  # Bulle de dialogue
+    "thought": "💭",  # Bulle de pensée
+    "money": "💰",  # Sac d'argent
+    "budget": "💵",  # Billet
+    "growth": "📈",  # Croissance
+    "decline": "📉",  # Déclin
+    "stable": "📊",  # Stable
+    "target": "🎯",  # Cible
+    "goal": "🥅",  # But de football
+    "plan": "🗺️",  # Carte
+    "strategy": "♟️",  # Pion d'échecs
+    "team": "👨‍👩‍👧‍👦",  # Famille
+    "meeting": "👥",  # Réunion
+    "presentation": "📽️",  # Projecteur
+    "video": "📹",  # Caméra
+    "audio": "🎧",  # Casque
+    "image": "🖼️",  # Cadre photo
+    "link": "🔗",  # Chaîne
+    "attachment": "📎",  # Trombone
+    "zip": "🗜️",  # Pince
+    "code": "💻",  # Code
+    "bug": "🐛",  # Insecte
+    "feature": "✨",  # Étincelles
+    "update": "🔄",  # Mise à jour
+    "version": "🏷️",  # Étiquette
+    "release": "🚀",  # Fusée
+    "launch": "🎆",  # Feux d'artifice
+    "celebration": "🎉",  # Confettis
+    "party": "🥳",  # Visage fêtard
+    "confetti": "🎊",  # Confettis ballon
+    "clock": "🕰️",  # Horloge murale
+    "watch": "⌚",  # Montre
+    "alarm": "⏰",  # Réveil
+    "timer": "⏲️",  # Minuteur
+    "stopwatch": "⏱️",  # Chronomètre
+    "calendar_day": "📆",  # Calendrier du jour
+    "date": "📅",  # Date
+    "event": "📅",  # Événement
+    "reminder": "🗓️",  # Calendrier avec date
+    "deadline": "⏳",  # Échéance
+    "urgent": "🚨",  # Gyrophare
+    "important": "‼️",  # Double exclamation
+    "priority": "🔥",  # Feu
+    "critical": "💥",  # Explosion
+    "normal": "🟢",  # Cercle vert
+    "low": "🟡",  # Cercle jaune
+    "medium": "🟠",  # Cercle orange
+    "high": "🔴",  # Cercle rouge
 }
 
 # Page d'accueil
@@ -239,7 +239,7 @@ def main():
         --sage: #8a9a5b;
         --oxford-blue: #002147;
         --crimson: #990000;
-        --bg-light: #ffffff;
+        --bg-light: #f8fafc;
         --card-bg: #ffffff;
         --text-dark: #1e293b;
         --text-muted: #64748b;
@@ -258,11 +258,10 @@ def main():
     .main {{
         font-family: 'Inter', sans-serif;
         line-height: 1.6;
-        background-color: #ffffff !important;
     }}
     
     .stApp {{
-        background-color: #ffffff !important;
+        background: linear-gradient(135deg, #0a1429 0%, #1a2744 100%) !important;
         min-height: 100vh;
     }}
     
@@ -275,7 +274,7 @@ def main():
         padding: 3rem 1.5rem;
         background: var(--gradient-academic);
         border-radius: 0 0 1.5rem 1.5rem;
-        margin: 0 -1rem 2rem -1rem;
+        margin: -1rem -1rem 2rem -1rem;
         min-height: 450px;
         position: relative;
         overflow: hidden;
@@ -562,7 +561,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: var(--text-dark);
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 1.5rem;
         padding-bottom: 0.8rem;
         position: relative;
@@ -576,8 +575,11 @@ def main():
         left: 0;
         width: 4rem;
         height: 4px;
-        background: var(--gold);
+        background: white ;
         border-radius: 2px;
+        color: rgba(255, 255, 255, 0.9);
+                
+                
     }}
     
     /* Stats Grid amélioré */
@@ -586,7 +588,7 @@ def main():
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.2rem;
         margin-bottom: 2.5rem;
-        margin-top: 1rem;
+        margin-top:1rem;
     }}
     
     .stat-card-academic {{
@@ -682,7 +684,7 @@ def main():
         box-shadow: var(--shadow-sm);
         position: relative;
         overflow: hidden;
-        margin-top: 1rem;      
+        margin-top:1rem;      
     }}
     
     .feature-card-academic:hover {{
@@ -780,7 +782,7 @@ def main():
         box-shadow: var(--shadow-sm);
         position: relative;
         overflow: hidden;
-        margin-top: 1rem;
+        margin-top:1rem
     }}
     
     .role-card-academic:hover {{
@@ -849,18 +851,27 @@ def main():
         text-align: center;
         padding: 3rem 1.5rem;
         margin: 2.5rem 0;
-        background: var(--gradient-card);
+        background: var(--gradient-academic);
         border-radius: 1.5rem;
         position: relative;
         overflow: hidden;
-        border: 1px solid var(--border-light);
+    }}
+    
+    .cta-section-academic::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4a853' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
     }}
     
     .cta-title-academic {{
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        color: var(--navy);
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 1rem;
         position: relative;
         z-index: 2;
@@ -869,7 +880,7 @@ def main():
     .cta-subtitle-academic {{
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 2rem;
         max-width: 600px;
         line-height: 1.6;
@@ -881,6 +892,7 @@ def main():
     
     /* Custom Streamlit Button académique */
     .stButton > button {{
+        /* Base styling */
         background: linear-gradient(135deg, #D4A853 0%, #B38B3C 50%, #9A7732 100%) !important;
         color: #0A1931 !important;
         border: none !important;
@@ -891,23 +903,34 @@ def main():
         font-size: 1rem !important;
         letter-spacing: 0.02em !important;
         cursor: pointer !important;
+        
+        /* Layout & positioning */
         position: relative !important;
         overflow: hidden !important;
         isolation: isolate !important;
         outline: none !important;
+        
+        /* Transitions */
         transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        
+        /* Shadows */
         box-shadow: 
             0 4px 14px rgba(212, 168, 83, 0.25),
             0 1px 3px rgba(0, 0, 0, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        
+        /* Text rendering */
         text-transform: none !important;
         text-decoration: none !important;
         white-space: nowrap !important;
         user-select: none !important;
+        
+        /* Performance */
         backface-visibility: hidden !important;
         transform: translateZ(0) !important;
     }}
 
+    /* Hover state */
     .stButton > button:hover {{
         transform: translateY(-2px) !important;
         box-shadow: 
@@ -916,6 +939,7 @@ def main():
             inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     }}
 
+    /* Active/Click state */
     .stButton > button:active {{
         transform: translateY(0) !important;
         box-shadow: 
@@ -925,11 +949,13 @@ def main():
         transition-duration: 0.1s !important;
     }}
 
+    /* Focus state for accessibility */
     .stButton > button:focus {{
         outline: 2px solid rgba(212, 168, 83, 0.6) !important;
         outline-offset: 2px !important;
     }}
 
+    /* Disabled state */
     .stButton > button:disabled {{
         opacity: 0.6 !important;
         cursor: not-allowed !important;
@@ -937,6 +963,7 @@ def main():
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
     }}
 
+    /* Shine effect on hover */
     .stButton > button::after {{
         content: '';
         position: absolute;
@@ -958,11 +985,13 @@ def main():
         left: 100%;
     }}
 
+    /* Ensure text stays above shine effect */
     .stButton > button > * {{
         position: relative;
         z-index: 2;
     }}
 
+    /* Add a subtle border for depth (optional) */
     .stButton > button::before {{
         content: '';
         position: absolute;
@@ -979,13 +1008,12 @@ def main():
     
     /* Footer académique */
     .footer-academic {{
-        background: var(--gradient-card);
+        background: var(--gradient-academic);
         padding: 3rem 1.5rem 2rem;
         border-radius: 1rem 1rem 0 0;
         margin: 3rem -1rem -1rem -1rem;
         position: relative;
         overflow: hidden;
-        border-top: 1px solid var(--border-light);
     }}
     
     .footer-academic::before {{
@@ -1027,21 +1055,21 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.4rem;
         font-weight: 700;
-        color: var(--navy);
+        color: white;
         line-height: 1.2;
     }}
     
     .footer-brand-subtitle {{
         font-family: 'Inter', sans-serif;
         font-size: 0.75rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.8);
         margin-top: 0.2rem;
     }}
     
     .footer-description {{
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.7);
         line-height: 1.5;
     }}
     
@@ -1055,7 +1083,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1rem;
         font-weight: 700;
-        color: var(--navy);
+        color: white;
         margin-bottom: 0.4rem;
     }}
     
@@ -1071,7 +1099,7 @@ def main():
     .footer-links a {{
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.7);
         text-decoration: none;
         transition: all 0.3s ease;
         display: flex;
@@ -1080,7 +1108,7 @@ def main():
     }}
     
     .footer-links a:hover {{
-        color: var(--gold);
+        color: var(--gold-light);
         transform: translateX(3px);
     }}
     
@@ -1096,14 +1124,14 @@ def main():
         gap: 0.6rem;
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.7);
     }}
     
     .footer-bottom {{
         max-width: 1200px;
         margin: 2rem auto 0;
         padding-top: 1.5rem;
-        border-top: 1px solid var(--border-light);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -1114,7 +1142,7 @@ def main():
     .footer-copyright {{
         font-family: 'Inter', sans-serif;
         font-size: 0.75rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.5);
     }}
     
     .footer-legal {{
@@ -1125,19 +1153,13 @@ def main():
     .footer-legal a {{
         font-family: 'Inter', sans-serif;
         font-size: 0.75rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.5);
         text-decoration: none;
         transition: all 0.3s ease;
     }}
     
     .footer-legal a:hover {{
-        color: var(--gold);
-    }}
-    
-    /* Content container */
-    .content-container {{
-        background: white;
-        padding: 2rem;
+        color: var(--gold-light);
     }}
     
     /* Responsive Design */
@@ -1262,10 +1284,6 @@ def main():
     """, unsafe_allow_html=True)
 
     # Hero Section avec colonnes Streamlit
-    st.markdown("""
-    <div class="hero-container">
-    """, unsafe_allow_html=True)
-    
     col1, col2 = st.columns([1, 1], gap="large")
     
     with col1:
@@ -1308,19 +1326,12 @@ def main():
         """, unsafe_allow_html=True)
     
     with col2:
+        # Container pour l'image avec style CSS
         # Afficher l'image avec Streamlit
         st.image(pil_image, use_container_width=True, 
                 caption="", 
                 output_format="auto")
-    
-    st.markdown("""
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Contenu principal (après la hero section)
-    st.markdown("""
-    <div class="content-container">
-    """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
@@ -1521,10 +1532,6 @@ def main():
         <h3>🎓 Système de Gestion des Examens</h3>
         <p>© 2024 Université des Sciences et Technologies</p>
         <p>Contact: support@univ-examens.edu</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
