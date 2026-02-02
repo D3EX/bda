@@ -51,6 +51,32 @@ hide_streamlit_style = """
         margin: 0 !important;
         max-width: 100% !important;
     }
+    
+    /* Hero container styling for Streamlit columns */
+    .hero-container-wrapper {
+        background: #0a1429;
+        padding: 3rem 1.5rem;
+        border-radius: 0 0 1.5rem 1.5rem;
+        margin: -1rem -1rem 2rem -1rem;
+        min-height: 450px;
+    }
+    
+    /* Style pour forcer les colonnes à avoir un fond navy */
+    div[data-testid="column"]:nth-of-type(1),
+    div[data-testid="column"]:nth-of-type(2) {
+        background: #0a1429;
+    }
+    
+    /* Style pour la colonne de gauche */
+    div[data-testid="column"]:nth-of-type(1) {
+        padding-left: 1rem;
+    }
+    
+    /* Style pour la colonne de droite */
+    div[data-testid="column"]:nth-of-type(2) {
+        padding-right: 1rem;
+    }
+    
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -262,22 +288,7 @@ def main():
         min-height: 100vh;
     }}
     
-    /* Hero Header avec image universitaire - CORRIGÉ (fond navy) */
-    .hero-container {{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: center;
-        padding: 3rem 1.5rem;
-        background: var(--navy); /* FOND NAVY CORRIGÉ */
-        border-radius: 0 0 1.5rem 1.5rem;
-        margin: -1rem -1rem 2rem -1rem;
-        min-height: 450px;
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    
+    /* Hero Header avec image universitaire - CORRIGÉ (background en couleur unie) */
     .hero-content {{
         color: white;
         z-index: 2;
@@ -1151,31 +1162,6 @@ def main():
     
     /* Responsive Design */
     @media (max-width: 1024px) {{
-        .hero-container {{
-            grid-template-columns: 1fr;
-            text-align: center;
-            gap: 2rem;
-            padding: 2rem 1rem;
-        }}
-        
-        .hero-content {{
-            padding-left: 0;
-        }}
-        
-        .hero-subtitle {{
-            max-width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-        }}
-        
-        .hero-image-container {{
-            height: 280px;
-            max-width: 500px;
-            margin: 0 auto;
-        }}
-    }}
-    
-    @media (max-width: 768px) {{
         .hero-title {{
             font-size: 2rem;
         }}
@@ -1270,8 +1256,8 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # HERO SECTION - AVEC CONTENEUR NAVY
-    st.markdown('<div class="hero-container">', unsafe_allow_html=True)
+    # Hero Section avec fond navy
+    st.markdown('<div class="hero-container-wrapper">', unsafe_allow_html=True)
     
     # Hero Section avec colonnes Streamlit
     col1, col2 = st.columns([1, 1], gap="large")
@@ -1324,7 +1310,7 @@ def main():
                 output_format="auto")
         st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)  # Fin du conteneur hero-container
+    st.markdown('</div>', unsafe_allow_html=True)  # Fin du conteneur hero-container-wrapper
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
