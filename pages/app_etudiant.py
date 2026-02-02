@@ -143,10 +143,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Fonction pour obtenir la connexion à la base de données
-@st.cache_resource(show_spinner=False)
 def get_connection():
     cfg = st.secrets["mysql"]
-    return mysql.connector.connect(
+    conn = mysql.connector.connect(
         host=cfg["host"],
         port=int(cfg["port"]),
         database=cfg["database"],
@@ -155,30 +154,29 @@ def get_connection():
         autocommit=True,
         connection_timeout=10
     )
+    return conn
 # Fonction pour exécuter les requêtes SQL
 def run_query(query, params=None, fetch=True):
     try:
         conn = get_connection()
-
-        # 🔁 Reconnect automatically if dropped
-        if not conn.is_connected():
-            conn.reconnect(attempts=3, delay=2)
-
         cursor = conn.cursor(dictionary=True)
+
         cursor.execute(query, params or ())
 
         if fetch:
             result = cursor.fetchall()
-            cursor.close()
-            return result
+        else:
+            conn.commit()
+            result = True
 
-        conn.commit()
         cursor.close()
-        return True
+        conn.close()   # 🔥 IMPORTANT
+        return result
 
     except Error as e:
         st.error(f"Database error: {e}")
         return None
+
 
 # Fonctions pour les étudiants
 def get_departements():
