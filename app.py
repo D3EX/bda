@@ -577,6 +577,9 @@ def main():
         height: 4px;
         background: white ;
         border-radius: 2px;
+        color: white;
+                
+                
     }}
     
     /* Stats Grid amélioré */
