@@ -262,14 +262,10 @@ def main():
         min-height: 100vh;
     }}
     
-    /* Hero Header avec image universitaire */
+    /* Hero Container avec le fond original */
     .hero-container {{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: center;
+        background: linear-gradient(135deg, #0a1429, #002147, #1a2744);
         padding: 3rem 1.5rem;
-        background: var(--gradient-academic);
         border-radius: 0 0 1.5rem 1.5rem;
         margin: -1rem -1rem 2rem -1rem;
         min-height: 450px;
@@ -287,9 +283,20 @@ def main():
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a853' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }}
     
+    /* Container pour le contenu et l'image */
+    .hero-content-wrapper {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }}
+    
     .hero-content {{
         color: white;
-        z-index: 2;
         padding-left: 1rem;
     }}
     
@@ -298,7 +305,7 @@ def main():
         align-items: center;
         gap: 0.5rem;
         background: rgba(212, 168, 83, 0.2);
-        color: var(--gold-light);
+        color: #e6c47a;
         padding: 0.4rem 0.8rem;
         border-radius: 1.5rem;
         font-family: 'Inter', sans-serif;
@@ -320,7 +327,7 @@ def main():
     }}
     
     .hero-title span {{
-        background: var(--gradient-gold);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }}
@@ -344,8 +351,8 @@ def main():
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: var(--gradient-gold);
-        color: var(--navy);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
+        color: #0a1429;
         padding: 0.8rem 1.8rem;
         border-radius: 0.5rem;
         font-family: 'Inter', sans-serif;
@@ -386,24 +393,24 @@ def main():
         border-color: rgba(255, 255, 255, 0.3);
     }}
     
+    /* Container pour l'image avec bordure dorée */
     .hero-image-container {{
         position: relative;
         border-radius: 1rem;
         overflow: hidden;
-        box-shadow: var(--shadow-lg);
-        border: 2px solid var(--gold);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
         height: 350px;
+        border: 2px solid #d4a853;
+        background: #0a1429;
     }}
     
-    .hero-image {{
+    /* Style pour l'image à l'intérieur du container */
+    .hero-image-wrapper {{
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        background: linear-gradient(135deg, var(--navy), var(--navy-light));
-        background-image: url("{image_url}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.9rem;
     }}
     
     .hero-stats {{
@@ -423,7 +430,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: var(--gold);
+        color: #d4a853;
         line-height: 1;
         margin-bottom: 0.3rem;
     }}
@@ -442,12 +449,12 @@ def main():
         backdrop-filter: blur(20px);
         padding: 1rem 2rem;
         border-radius: 0.8rem;
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
-        border: 1px solid var(--border-light);
+        border: 1px solid #e2e8f0;
         position: sticky;
         top: 0.5rem;
         z-index: 1000;
@@ -462,7 +469,7 @@ def main():
     
     .nav-brand-icon {{
         font-size: 1.5rem;
-        color: var(--gold);
+        color: #d4a853;
         background: rgba(212, 168, 83, 0.1);
         width: 40px;
         height: 40px;
@@ -470,7 +477,7 @@ def main():
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid var(--gold);
+        border: 2px solid #d4a853;
     }}
     
     .nav-brand-text {{
@@ -482,7 +489,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.2rem;
         font-weight: 700;
-        background: var(--gradient-navy);
+        background: linear-gradient(135deg, #0a1429, #1a2744);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         line-height: 1.2;
@@ -491,7 +498,7 @@ def main():
     .nav-brand-subtitle {{
         font-family: 'Inter', sans-serif;
         font-size: 0.65rem;
-        color: var(--text-muted);
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.8px;
     }}
@@ -502,7 +509,7 @@ def main():
         gap: 1.2rem;
         font-family: 'Inter', sans-serif;
         font-size: 0.8rem;
-        color: var(--text-muted);
+        color: #64748b;
     }}
     
     .nav-info-item {{
@@ -521,7 +528,7 @@ def main():
         align-items: center;
         gap: 0.4rem;
         padding: 0.6rem 1.2rem;
-        background: var(--gradient-navy);
+        background: linear-gradient(135deg, #0a1429, #1a2744);
         border-radius: 0.6rem;
         color: white;
         font-family: 'Inter', sans-serif;
@@ -543,9 +550,9 @@ def main():
         align-items: center;
         gap: 0.4rem;
         padding: 0.6rem 1.2rem;
-        border: 2px solid var(--navy-light);
+        border: 2px solid #1a2744;
         border-radius: 0.6rem;
-        color: var(--navy-light);
+        color: #1a2744;
         font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 0.8rem;
@@ -554,7 +561,7 @@ def main():
     }}
     
     .nav-btn-outline-academic:hover {{
-        background: var(--navy-light);
+        background: #1a2744;
         color: white;
         transform: translateY(-2px);
     }}
@@ -564,7 +571,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: var(--text-dark);
+        color: #1e293b;
         margin-bottom: 1.5rem;
         padding-bottom: 0.8rem;
         position: relative;
@@ -578,7 +585,7 @@ def main():
         left: 0;
         width: 4rem;
         height: 4px;
-        background: var(--gradient-gold);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
         border-radius: 2px;
     }}
     
@@ -592,20 +599,20 @@ def main():
     }}
     
     .stat-card-academic {{
-        background: var(--gradient-card);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         border-radius: 1rem;
         padding: 1.8rem;
         position: relative;
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }}
     
     .stat-card-academic:hover {{
         transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--gold);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        border-color: #d4a853;
     }}
     
     .stat-card-academic::before {{
@@ -615,7 +622,7 @@ def main():
         left: 0;
         right: 0;
         height: 3px;
-        background: var(--gradient-gold);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
     }}
     
     .stat-icon-academic {{
@@ -635,7 +642,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        color: var(--navy);
+        color: #0a1429;
         line-height: 1;
         margin-bottom: 0.4rem;
         display: flex;
@@ -645,7 +652,7 @@ def main():
     
     .stat-suffix-academic {{
         font-size: 1rem;
-        color: var(--text-muted);
+        color: #64748b;
         font-weight: 500;
     }}
     
@@ -653,7 +660,7 @@ def main():
         font-family: 'Inter', sans-serif;
         font-size: 0.8rem;
         font-weight: 600;
-        color: var(--text-muted);
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.8px;
         margin-bottom: 0.4rem;
@@ -662,7 +669,7 @@ def main():
     .stat-description {{
         font-family: 'Inter', sans-serif;
         font-size: 0.8rem;
-        color: var(--text-muted);
+        color: #64748b;
         line-height: 1.4;
         margin-top: 0.4rem;
     }}
@@ -676,12 +683,12 @@ def main():
     }}
     
     .feature-card-academic {{
-        background: var(--card-bg);
+        background: #ffffff;
         border-radius: 1rem;
         padding: 2rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         position: relative;
         overflow: hidden;
         margin-top:1rem;      
@@ -689,8 +696,8 @@ def main():
     
     .feature-card-academic:hover {{
         transform: translateY(-6px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--gold);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-color: #d4a853;
     }}
     
     .feature-card-academic::before {{
@@ -700,13 +707,13 @@ def main():
         left: 0;
         right: 0;
         height: 3px;
-        background: var(--gradient-gold);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
     }}
     
     .feature-icon-academic {{
         width: 60px;
         height: 60px;
-        background: var(--gradient-navy);
+        background: linear-gradient(135deg, #0a1429, #1a2744);
         border-radius: 0.8rem;
         display: flex;
         align-items: center;
@@ -721,7 +728,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.3rem;
         font-weight: 700;
-        color: var(--navy);
+        color: #0a1429;
         margin-bottom: 0.8rem;
         line-height: 1.3;
     }}
@@ -729,7 +736,7 @@ def main():
     .feature-description-academic {{
         font-family: 'Inter', sans-serif;
         font-size: 0.9rem;
-        color: var(--text-muted);
+        color: #64748b;
         line-height: 1.5;
         margin-bottom: 1rem;
     }}
@@ -747,8 +754,8 @@ def main():
         padding: 0.6rem 0;
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
-        color: var(--text-dark);
-        border-bottom: 1px solid var(--border-light);
+        color: #1e293b;
+        border-bottom: 1px solid #e2e8f0;
     }}
     
     .feature-list-academic li:last-child {{
@@ -757,7 +764,7 @@ def main():
     
     .feature-list-academic li::before {{
         content: '✓';
-        color: var(--gold);
+        color: #d4a853;
         font-weight: 700;
         font-size: 0.9rem;
         flex-shrink: 0;
@@ -773,13 +780,13 @@ def main():
     }}
     
     .role-card-academic {{
-        background: var(--gradient-card);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         border-radius: 1rem;
         padding: 2rem 1.5rem;
         text-align: center;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         position: relative;
         overflow: hidden;
         margin-top:1rem
@@ -787,8 +794,8 @@ def main():
     
     .role-card-academic:hover {{
         transform: translateY(-5px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--gold);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-color: #d4a853;
     }}
     
     .role-card-academic::before {{
@@ -798,13 +805,13 @@ def main():
         left: 0;
         right: 0;
         height: 3px;
-        background: var(--gradient-gold);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
     }}
     
     .role-icon-academic {{
         font-size: 2.5rem;
         margin-bottom: 1rem;
-        color: var(--navy);
+        color: #0a1429;
         background: rgba(212, 168, 83, 0.1);
         width: 75px;
         height: 75px;
@@ -819,7 +826,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 1.1rem;
         font-weight: 700;
-        color: var(--navy);
+        color: #0a1429;
         margin-bottom: 1rem;
     }}
     
@@ -832,14 +839,14 @@ def main():
     .role-features-academic li {{
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: #64748b;
         padding: 0.6rem 0;
         position: relative;
     }}
     
     .role-features-academic li::before {{
         content: '•';
-        color: var(--gold);
+        color: #d4a853;
         font-weight: bold;
         position: absolute;
         left: -0.8rem;
@@ -851,7 +858,7 @@ def main():
         text-align: center;
         padding: 3rem 1.5rem;
         margin: 2.5rem 0;
-        background: var(--gradient-academic);
+        background: linear-gradient(135deg, #0a1429, #002147, #1a2744);
         border-radius: 0;
         position: relative;
         overflow: hidden;
@@ -877,15 +884,6 @@ def main():
         z-index: 2;
     }}
     
-    .cta-section-academic {{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        min-height: 200px;
-    }}
-
     .cta-subtitle-academic {{
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
@@ -997,7 +995,7 @@ def main():
     
     /* Footer académique */
     .footer-academic {{
-        background: var(--gradient-academic);
+        background: linear-gradient(135deg, #0a1429, #002147, #1a2744);
         padding: 3rem 1.5rem 2rem;
         border-radius: 1rem 1rem 0 0;
         margin: 3rem -1rem -1rem -1rem;
@@ -1012,152 +1010,15 @@ def main():
         left: 0;
         right: 0;
         height: 1px;
-        background: var(--gradient-gold);
-    }}
-    
-    .footer-content {{
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-    }}
-    
-    .footer-brand-academic {{
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }}
-    
-    .footer-brand-header {{
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }}
-    
-    .footer-brand-icon {{
-        font-size: 2rem;
-        color: var(--gold);
-    }}
-    
-    .footer-brand-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: white;
-        line-height: 1.2;
-    }}
-    
-    .footer-brand-subtitle {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-top: 0.2rem;
-    }}
-    
-    .footer-description {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.5;
-    }}
-    
-    .footer-section {{
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }}
-    
-    .footer-section-title {{
-        font-family: 'Playfair Display', serif;
-        font-size: 1rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.4rem;
-    }}
-    
-    .footer-links {{
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-    }}
-    
-    .footer-links a {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-    }}
-    
-    .footer-links a:hover {{
-        color: var(--gold-light);
-        transform: translateX(3px);
-    }}
-    
-    .footer-contact-info {{
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-    }}
-    
-    .footer-contact-item {{
-        display: flex;
-        align-items: flex-start;
-        gap: 0.6rem;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-    }}
-    
-    .footer-bottom {{
-        max-width: 1200px;
-        margin: 2rem auto 0;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }}
-    
-    .footer-copyright {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.5);
-    }}
-    
-    .footer-legal {{
-        display: flex;
-        gap: 1rem;
-    }}
-    
-    .footer-legal a {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.5);
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }}
-    
-    .footer-legal a:hover {{
-        color: var(--gold-light);
+        background: linear-gradient(135deg, #d4a853, #f6d365);
     }}
     
     /* Responsive Design */
     @media (max-width: 1024px) {{
-        .hero-container {{
+        .hero-content-wrapper {{
             grid-template-columns: 1fr;
             text-align: center;
             gap: 2rem;
-            padding: 2rem 1rem;
         }}
         
         .hero-content {{
@@ -1221,25 +1082,9 @@ def main():
         .cta-title-academic {{
             font-size: 1.8rem;
         }}
-        
-        .footer-content {{
-            grid-template-columns: 1fr;
-            text-align: center;
-        }}
-        
-        .footer-links a,
-        .footer-contact-item {{
-            justify-content: center;
-        }}
-        
-        .footer-bottom {{
-            flex-direction: column;
-            text-align: center;
-        }}
     }}
     </style>
     """, unsafe_allow_html=True)
-
 
     # Navigation Bar
     current_date = datetime.now().strftime("%d/%m/%Y")
@@ -1273,55 +1118,61 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Hero Section avec colonnes Streamlit
-    col1, col2 = st.columns([1, 1], gap="large")
+    # Hero Section avec fond original
+    st.markdown(f"""
+    <div class="hero-container">
+        <div class="hero-content-wrapper">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    {ACADEMIC_EMOJIS['university']} Système Académique Officiel
+                </div>
+                <h1 class="hero-title">
+                    {ACADEMIC_EMOJIS['system']} Système de Gestion <span>des Examens</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Solution complète et intuitive pour la planification, l'organisation et la gestion optimisée des examens universitaires. 
+                    Gérez vos sessions d'examens avec efficacité et précision professionnelle.
+                </p>
+                <div class="hero-buttons">
+                    <a class="hero-button-primary">
+                        <span>{ACADEMIC_EMOJIS['calendar']} Données fiables et mises à jour </span>
+                    </a>
+                    <a class="hero-button-secondary">
+                        <span>{ACADEMIC_EMOJIS['stats']} Disponible 24h/24 et 7j/7</span>
+                        <span>{ACADEMIC_EMOJIS['analytics']}</span>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-number">10+</div>
+                        <div class="hero-stat-label">Établissements</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-number">500+</div>
+                        <div class="hero-stat-label">Examens gérés</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-number">99.8%</div>
+                        <div class="hero-stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-image-container">
+                <div class="hero-image-wrapper">
+    """, unsafe_allow_html=True)
     
-    with col1:
-        st.markdown(f"""
-        <div class="hero-content">
-            <div class="hero-badge">
-                {ACADEMIC_EMOJIS['university']} Système Académique Officiel
-            </div>
-            <h1 class="hero-title">
-                {ACADEMIC_EMOJIS['system']} Système de Gestion <span>des Examens</span>
-            </h1>
-            <p class="hero-subtitle">
-                Solution complète et intuitive pour la planification, l'organisation et la gestion optimisée des examens universitaires. 
-                Gérez vos sessions d'examens avec efficacité et précision professionnelle.
-            </p>
-            <div class="hero-buttons">
-                <a class="hero-button-primary">
-                    <span>{ACADEMIC_EMOJIS['calendar']} Données fiables et mises à jour </span>
-                </a>
-                <a class="hero-button-secondary">
-                    <span>{ACADEMIC_EMOJIS['stats']} Disponible 24h/24 et 7j/7</span>
-                    <span>{ACADEMIC_EMOJIS['analytics']}</span>
-                </a>
-            </div>
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <div class="hero-stat-number">10+</div>
-                    <div class="hero-stat-label">Établissements</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-number">500+</div>
-                    <div class="hero-stat-label">Examens gérés</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-number">99.8%</div>
-                    <div class="hero-stat-label">Satisfaction</div>
+    # Afficher l'image dans le container
+    st.image(pil_image, use_container_width=True, 
+             caption="", 
+             output_format="auto")
+    
+    st.markdown("""
                 </div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        # Container pour l'image avec style CSS
-        # Afficher l'image avec Streamlit
-        st.image(pil_image, use_container_width=True, 
-                caption="", 
-                output_format="auto")
-        st.markdown('</div>', unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
     
     # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
