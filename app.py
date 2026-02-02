@@ -395,6 +395,17 @@ def main():
         height: 350px;
     }}
     
+    .hero-image {{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: linear-gradient(135deg, var(--navy), var(--navy-light));
+        background-image: url("{image_url}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }}
+    
     .hero-stats {{
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -1228,6 +1239,7 @@ def main():
     }}
     </style>
     """, unsafe_allow_html=True)
+
 
     # Navigation Bar
     current_date = datetime.now().strftime("%d/%m/%Y")
