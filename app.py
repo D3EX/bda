@@ -562,7 +562,7 @@ def main():
     font-family: 'Playfair Display', serif;
     font-size: 1.8rem;
     font-weight: 700;
-    color: white;  /* Changé de rgba(255, 255, 255, 0.9) à white */
+    color: var(--section-title-color);  /* Utilisez la variable */
     margin-bottom: 1.5rem;
     padding-bottom: 0.8rem;
     position: relative;
@@ -576,7 +576,7 @@ def main():
     left: 0;
     width: 4rem;
     height: 4px;
-    background: white;  /* Changé le dégradé pour blanc uni */
+    color: var(--section-title-color);  /* Utilisez la variable */
     border-radius: 2px;
 }}
     
