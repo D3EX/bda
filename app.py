@@ -47,7 +47,9 @@ hide_streamlit_style = """
     
     /* Optional: remove padding around the page */
     .block-container {
-    padding-top: 0rem !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
     }
     </style>
 """
@@ -261,34 +263,19 @@ def main():
     }}
     
     /* Hero Header avec image universitaire */
-/* BACKGROUND LAYER (DOES NOT PUSH CONTENT) */
-.hero-section::before {{
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #0a2a43, #0e3a5c, #0b2740);
-    z-index: 0;
-}}
-
-/* PATTERN OVERLAY */
-.hero-section::after {{
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size: 22px 22px;
-    z-index: 1;
-}}
-
-/* HERO CONTENT */
-.hero-content {{
-    position: relative;
-    z-index: 2;
-    color: white;
-    text-align: left;
-    width: 90%;
-    max-width: 1200px;
-}}
+    .hero-container {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        padding: 3rem 1.5rem;
+        background: var(--gradient-academic);
+        border-radius: 0 0 1.5rem 1.5rem;
+        margin: -1rem -1rem 2rem -1rem;
+        min-height: 450px;
+        position: relative;
+        overflow: hidden;
+    }}
     
     .hero-container::before {{
         content: '';
