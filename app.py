@@ -869,7 +869,7 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
+        color: white !important; /* Changement ici - ajout de !important */
         margin-bottom: 1rem;
         position: relative;
         z-index: 2;
