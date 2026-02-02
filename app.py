@@ -5,11 +5,9 @@ from mysql.connector import Error
 import pandas as pd
 import time
 from datetime import datetime
-import base64
-import sqlite3     
 import os
 
-image_path = r"young-muslim-student-class.jpg"
+image_path = "young-muslim-student-class.jpg"
 st.set_page_config(
     page_title="My Page",
     page_icon="🎓",
@@ -18,7 +16,6 @@ st.set_page_config(
 )
 
 # Hide Streamlit default UI elements
-# Dans votre section CSS, ajoutez ceci :
 hide_streamlit_style = """
     <style>
         /* Cache la navigation */
@@ -57,24 +54,19 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-
-# Encodage base64 d'une image universitaire par défaut (placeholder)
-@st.cache_data  # Cache the result so it doesn't run on every rerun
-def get_base64_image():
+# Vérifier si l'image existe et utiliser une URL par défaut sinon
+def get_image_url():
     try:
-        # Vérifie si l'image existe
         if os.path.exists(image_path):
-            with open(image_path, "rb") as img_file:
-                base64_img = base64.b64encode(img_file.read()).decode()
-            return f"data:image/jpeg;base64,{base64_img}"
+            # Utiliser un chemin relatif ou absolu
+            return image_path
         else:
-            # Fallback si l'image n'existe pas
+            # Fallback vers une image online
             st.warning(f"Image non trouvée à l'emplacement: {image_path}")
-            # Image placeholder académique en base64 (petite version)
-            return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+CjxwYXRoIGQ9Ik00MDAgMTAwQzIzMCAxMDAgMTAwIDIzMCAxMDAgNDAwQzEwMCA1NzAgMjMwIDcwMCA0MDAgNzAwQzU3MCA3MDAgNzAwIDU3MCA3MDAgNDAwQzcwMCAyMzAgNTcwIDEwMCA0MDAgMTAwWiIgZmlsbD0iIzAwMjE0NyIvPgo8cGF0aCBkPSJNMjAwIDIwMEwzMDAgMzAwTDIwMCA0MDBIMTAwVjMwMEgxMDBWMjAwSDIwVjMwMEgyMFY0MDBIMTBWNTBIMjBWMjAwWiIgZmlsbD0iI2Q0YTg1MyIvPgo8L3N2Zz4K"
+            return "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
     except Exception as e:
         st.error(f"Erreur de chargement d'image: {e}")
-        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMGYxNzI5Ii8+Cjwvc3ZnPg=="
+        return "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
 
 # Emojis académiques professionnels
 ACADEMIC_EMOJIS = {
@@ -220,6 +212,9 @@ ACADEMIC_EMOJIS = {
 
 # Page d'accueil
 def main():
+    # Récupérer l'URL de l'image
+    image_url = get_image_url()
+    
     # Style CSS personnalisé - Design académique professionnel
     st.markdown(f"""
     <style>
@@ -403,6 +398,10 @@ def main():
         height: 100%;
         object-fit: cover;
         background: linear-gradient(135deg, var(--navy), var(--navy-light));
+        background-image: url("{image_url}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }}
     
     .hero-stats {{
@@ -870,148 +869,129 @@ def main():
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        color: black;
+        color: white;
         margin-bottom: 1rem;
         position: relative;
         z-index: 2;
     }}
     
-   .cta-section-academic {{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;   /* vertical center */
-    align-items: center;       /* horizontal center */
-    text-align: center;
-             /* full screen center */
-}}
+    .cta-section-academic {{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 200px;
+    }}
 
-.cta-subtitle-academic {{
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 2rem;
-    max-width: 600px;
-    line-height: 1.6;
-    position: relative;
-    z-index: 2;
-}}
+    .cta-subtitle-academic {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        line-height: 1.6;
+        position: relative;
+        z-index: 2;
+    }}
     
     /* Custom Streamlit Button académique */
-.stButton > button {{
-    /* Base styling */
-    background: linear-gradient(135deg, #D4A853 0%, #B38B3C 50%, #9A7732 100%) !important;
-    color: #0A1931 !important;
-    border: none !important;
-    padding: 1rem 3rem !important;
-    border-radius: 0.8rem !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 1rem !important;
-    letter-spacing: 0.02em !important;
-    cursor: pointer !important;
-    
-    /* Layout & positioning */
-    position: relative !important;
-    overflow: hidden !important;
-    isolation: isolate !important;
-    outline: none !important;
-    
-    /* Transitions */
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-    
-    /* Shadows */
-    box-shadow: 
-        0 4px 14px rgba(212, 168, 83, 0.25),
-        0 1px 3px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-    
-    /* Text rendering */
-    text-transform: none !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-    user-select: none !important;
-    
-    /* Performance */
-    backface-visibility: hidden !important;
-    transform: translateZ(0) !important;
-}}
+    .stButton > button {{
+        background: linear-gradient(135deg, #D4A853 0%, #B38B3C 50%, #9A7732 100%) !important;
+        color: #0A1931 !important;
+        border: none !important;
+        padding: 1rem 3rem !important;
+        border-radius: 0.8rem !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        letter-spacing: 0.02em !important;
+        cursor: pointer !important;
+        position: relative !important;
+        overflow: hidden !important;
+        isolation: isolate !important;
+        outline: none !important;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        box-shadow: 
+            0 4px 14px rgba(212, 168, 83, 0.25),
+            0 1px 3px rgba(0, 0, 0, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        text-transform: none !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        user-select: none !important;
+        backface-visibility: hidden !important;
+        transform: translateZ(0) !important;
+    }}
 
-/* Hover state */
-.stButton > button:hover {{
-    transform: translateY(-2px) !important;
-    box-shadow: 
-        0 8px 20px rgba(212, 168, 83, 0.35),
-        0 3px 6px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-}}
+    .stButton > button:hover {{
+        transform: translateY(-2px) !important;
+        box-shadow: 
+            0 8px 20px rgba(212, 168, 83, 0.35),
+            0 3px 6px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    }}
 
-/* Active/Click state */
-.stButton > button:active {{
-    transform: translateY(0) !important;
-    box-shadow: 
-        0 2px 8px rgba(212, 168, 83, 0.3),
-        0 1px 2px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-    transition-duration: 0.1s !important;
-}}
+    .stButton > button:active {{
+        transform: translateY(0) !important;
+        box-shadow: 
+            0 2px 8px rgba(212, 168, 83, 0.3),
+            0 1px 2px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        transition-duration: 0.1s !important;
+    }}
 
-/* Focus state for accessibility */
-.stButton > button:focus {{
-    outline: 2px solid rgba(212, 168, 83, 0.6) !important;
-    outline-offset: 2px !important;
-}}
+    .stButton > button:focus {{
+        outline: 2px solid rgba(212, 168, 83, 0.6) !important;
+        outline-offset: 2px !important;
+    }}
 
-/* Disabled state */
-.stButton > button:disabled {{
-    opacity: 0.6 !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
-}}
+    .stButton > button:disabled {{
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    }}
 
+    .stButton > button::after {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+        );
+        transition: left 0.7s ease !important;
+        z-index: 1;
+    }}
 
-/* Shine effect on hover */
-.stButton > button::after {{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
-    transition: left 0.7s ease !important;
-    z-index: 1;
-}}
+    .stButton > button:hover::after {{
+        left: 100%;
+    }}
 
-.stButton > button:hover::after {{
-    left: 100%;
-}}
+    .stButton > button > * {{
+        position: relative;
+        z-index: 2;
+    }}
 
-/* Ensure text stays above shine effect */
-.stButton > button > * {{
-    position: relative;
-    z-index: 2;
-}}
-
-/* Add a subtle border for depth (optional) */
-.stButton > button::before {{
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: calc(0.8rem - 1px);
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(0, 0, 0, 0.05) 100%
-    );
-    pointer-events: none;
-    z-index: 1;
-}}
+    .stButton > button::before {{
+        content: '';
+        position: absolute;
+        inset: 1px;
+        border-radius: calc(0.8rem - 1px);
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(0, 0, 0, 0.05) 100%
+        );
+        pointer-events: none;
+        z-index: 1;
+    }}
     
     /* Footer académique */
     .footer-academic {{
@@ -1255,11 +1235,8 @@ def main():
             text-align: center;
         }}
     }}
-    
-    /* Hide Streamlit default elements */
- 
     </style>
-    """, unsafe_allow_html=True)# Hero Section
+    """, unsafe_allow_html=True)
 
     # Navigation Bar
     current_date = datetime.now().strftime("%d/%m/%Y")
@@ -1292,8 +1269,8 @@ def main():
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
     # Hero Section avec image universitaire
-       # Hero Section avec image universitaire
     st.markdown(f"""
     <div class="hero-container">
         <div class="hero-content">
@@ -1332,16 +1309,17 @@ def main():
             </div>
         </div>
         <div class="hero-image-container">
-        <div class="hero-image" style="background: url('{get_base64_image()}') center/cover no-repeat;"></div></div>
+            <div class="hero-image"></div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
-     # Modified columns layout for two buttons
+    # Modified columns layout for two buttons
     col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
     
     with col2:
         if st.button(f"Voir Planning", use_container_width=True, type="secondary"):
-            st.switch_page("pages/app_etudiant.py")  # Or your planning page
+            st.switch_page("pages/app_etudiant.py")
     
     with col4:
         if st.button(f"Connexion", use_container_width=True, type="primary"):
@@ -1352,12 +1330,6 @@ def main():
     
     with st.spinner("Chargement des statistiques académiques..."):
         time.sleep(0.5)
-        
-        # Formater les grands nombres
-        def format_number(num):
-            if num >= 1000:
-                return f"{num:,}".replace(",", " ")
-            return str(num)
         
         st.markdown(f"""
         <div class="stats-grid">
@@ -1528,17 +1500,14 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Bouton de connexion principal
-   
- 
-    # FOOTER - Placez-le ici, à l'intérieur de la fonction main()
+    # FOOTER
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #0a1429, #002147);
         padding: 2rem;
         color: white;
         text-align: center;
-        border-radius: ;
+        border-radius: 1rem;
         margin-top: 2rem;
     ">
         <h3>🎓 Système de Gestion des Examens</h3>
@@ -1547,7 +1516,5 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-# Cette ligne doit rester en dehors de la fonction main()
 if __name__ == "__main__":
     main()
-
