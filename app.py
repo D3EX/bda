@@ -223,7 +223,7 @@ def main():
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
     
     /* Variables CSS académiques */
-    :root {{
+ :root {{
         --navy: #0a1429;
         --navy-light: #1a2744;
         --navy-lighter: #2a3659;
