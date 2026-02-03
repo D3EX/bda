@@ -586,79 +586,44 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Database connection functions (same as before)
-import streamlit as st
-import mysql.connector
-from mysql.connector import Error
-
-# Database connection functions
 def get_connection():
-    """Get database connection from secrets"""
-    try:
-        cfg = st.secrets["mysql"]
-        conn = mysql.connector.connect(
-            host=cfg["host"],
-            port=int(cfg["port"]),
-            database=cfg["database"],
-            user=cfg["user"],
-            password=cfg["password"],
-            autocommit=True,
-            connection_timeout=10
-        )
-        return conn
-    except Error as e:
-        st.error(f"Connection error: {e}")
-        return None
+    if "conn" not in st.session_state:
+        try:
+            cfg = st.secrets["mysql"]
+            st.session_state.conn = mysql.connector.connect(
+                host=cfg["host"],
+                port=int(cfg["port"]),
+                database=cfg["database"],
+                user=cfg["user"],
+                password=cfg["password"],
+                autocommit=True
+            )
+        except Error as e:
+            st.error(f"Erreur DB : {e}")
+            st.stop()
+    return st.session_state.conn
+
+conn = get_connection()
 
 def run_query(query, params=None, fetch=True):
-    """Execute query and return results"""
-    conn = None
     try:
-        conn = get_connection()
         if conn is None:
             return None
-            
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, params or ())
-
+        cursor.execute(query, params) if params else cursor.execute(query)
         if fetch:
             result = cursor.fetchall()
-        else:
-            conn.commit()
-            result = True
-
+            cursor.close()
+            return result
+        conn.commit()
         cursor.close()
-        conn.close()
-        return result
-
-    except Error as e:
-        st.error(f"Database error: {e}")
-        if conn:
-            conn.close()
-        return None
-
-
-def run_query(query, params=None, fetch=True):
-    try:
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute(query, params or ())
-
-        if fetch:
-            result = cursor.fetchall()
-        else:
-            conn.commit()
-            result = True
-
-        cursor.close()
-        conn.close()   # 🔥 IMPORTANT
-        return result
-
-    except Error as e:
-        st.error(f"Database error: {e}")
+        return True
+    except Error:
         return None
 
 def authenticate_user(user_id, password):
+    if conn is None:
+        return False
     query = """
         SELECT u.*, p.nom, p.prenom, p.dept_id, d.nom as departement
         FROM utilisateurs u
@@ -667,8 +632,7 @@ def authenticate_user(user_id, password):
         WHERE u.id = %s AND u.mot_de_passe = %s
     """
     result = run_query(query, (user_id, password))
-    
-    if result and len(result) > 0:
+    if result:
         user = result[0]
         st.session_state['logged_in'] = True
         st.session_state['user_id'] = user['id']
@@ -678,7 +642,6 @@ def authenticate_user(user_id, password):
         st.session_state['departement'] = user.get('departement')
         return True
     return False
-
 
 def main():
     # Create two columns with specific heights
