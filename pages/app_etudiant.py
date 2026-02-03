@@ -1,4 +1,5 @@
 
+
 # app_etudiant.py - Version corrigée
 
 import streamlit as st
@@ -8,7 +9,7 @@ from mysql.connector import Error
 from datetime import datetime, timedelta
 import calendar
 import time
-from datetime import date
+
 # Configuration de la page
 st.set_page_config(
     page_title="UniSchedule - Portail Étudiant",
@@ -321,14 +322,10 @@ with st.sidebar:
     st.markdown("**📅 Période de Recherche**")
     col1, col2 = st.columns(2)
     with col1:
-    # Date de début fixe au 1er janvier 2025
-         default_start_date = date(2025, 1, 1)
-         date_debut = st.date_input(
-        "**Début**",
-        value=default_start_date,
-        min_value=date(2025, 1, 1),  # Optionnel : empêche de sélectionner avant 2025
-        key="date_debut"
-    )
+        date_debut = st.date_input("Début", 
+                                  datetime.now(), 
+                                  key="date_debut",
+                                  help="Date de début de recherche")
     with col2:
         date_fin = st.date_input("Fin", 
                                 datetime.now() + timedelta(days=30), 
