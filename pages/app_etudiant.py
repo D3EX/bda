@@ -144,39 +144,53 @@ st.markdown("""
 
 # Fonction pour obtenir la connexion à la base de données
 def get_connection():
-    cfg = st.secrets["mysql"]
-    conn = mysql.connector.connect(
-        host=cfg["host"],
-        port=int(cfg["port"]),
-        database=cfg["database"],
-        user=cfg["user"],
-        password=cfg["password"],
-        autocommit=True,
-        connection_timeout=10
-    )
-    return conn
-# Fonction pour exécuter les requêtes SQL
-def run_query(query, params=None, fetch=True):
+    """Établit une connexion à la base de données MySQL"""
     try:
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute(query, params or ())
-
-        if fetch:
-            result = cursor.fetchall()
-        else:
-            conn.commit()
-            result = True
-
-        cursor.close()
-        conn.close()   # 🔥 IMPORTANT
-        return result
-
-    except Error as e:
-        st.error(f"Database error: {e}")
+        # Utiliser les secrets Streamlit
+        config = {
+            'host': st.secrets["mysql"]["host"],
+            'port': int(st.secrets["mysql"]["port"]),
+            'database': st.secrets["mysql"]["database"],
+            'user': st.secrets["mysql"]["user"],
+            'password': st.secrets["mysql"]["password"]
+        }
+        
+        conn = mysql.connector.connect(**config)
+        return conn
+    except Exception as e:
+        st.error(f"Erreur de connexion à la base de données: {e}")
         return None
 
+# Fonction pour exécuter les requêtes SQL
+def run_query(query, params=None, fetch=True):
+    """Exécute une requête SQL avec gestion d'erreurs"""
+    conn = None
+    try:
+        conn = get_connection()
+        if conn is None:
+            return None
+            
+        cursor = conn.cursor(dictionary=True)
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        
+        if fetch:
+            result = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return result
+        else:
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return True
+    except Error as e:
+        st.error(f"Erreur SQL: {e}")
+        if conn:
+            conn.close()
+        return None
 
 # Fonctions pour les étudiants
 def get_departements():
