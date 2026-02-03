@@ -626,8 +626,6 @@ def run_query(query, params=None, fetch=True):
         return None
 
 def authenticate_user(user_id, password):
-    if conn is None:
-        return False
     query = """
         SELECT u.*, p.nom, p.prenom, p.dept_id, d.nom as departement
         FROM utilisateurs u
@@ -635,17 +633,23 @@ def authenticate_user(user_id, password):
         LEFT JOIN departements d ON p.dept_id = d.id
         WHERE u.id = %s AND u.mot_de_passe = %s
     """
+    
     result = run_query(query, (user_id, password))
-    if result:
+
+    if result and len(result) > 0:
         user = result[0]
+
         st.session_state['logged_in'] = True
         st.session_state['user_id'] = user['id']
         st.session_state['role'] = user['role']
         st.session_state['nom_complet'] = f"{user.get('prenom','')} {user.get('nom','')}".strip()
         st.session_state['departement_id'] = user.get('dept_id')
         st.session_state['departement'] = user.get('departement')
+
         return True
+
     return False
+
 
 def main():
     # Create two columns with specific heights
