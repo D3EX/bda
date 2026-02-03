@@ -590,18 +590,51 @@ import streamlit as st
 import mysql.connector
 from mysql.connector import Error
 
+# Database connection functions
 def get_connection():
-    cfg = st.secrets["mysql"]
-    conn = mysql.connector.connect(
-        host=cfg["host"],
-        port=int(cfg["port"]),
-        database=cfg["database"],
-        user=cfg["user"],
-        password=cfg["password"],
-        autocommit=True,
-        connection_timeout=10
-    )
-    return conn
+    """Get database connection from secrets"""
+    try:
+        cfg = st.secrets["mysql"]
+        conn = mysql.connector.connect(
+            host=cfg["host"],
+            port=int(cfg["port"]),
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=True,
+            connection_timeout=10
+        )
+        return conn
+    except Error as e:
+        st.error(f"Connection error: {e}")
+        return None
+
+def run_query(query, params=None, fetch=True):
+    """Execute query and return results"""
+    conn = None
+    try:
+        conn = get_connection()
+        if conn is None:
+            return None
+            
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query, params or ())
+
+        if fetch:
+            result = cursor.fetchall()
+        else:
+            conn.commit()
+            result = True
+
+        cursor.close()
+        conn.close()
+        return result
+
+    except Error as e:
+        st.error(f"Database error: {e}")
+        if conn:
+            conn.close()
+        return None
 
 
 def run_query(query, params=None, fetch=True):
@@ -633,21 +666,17 @@ def authenticate_user(user_id, password):
         LEFT JOIN departements d ON p.dept_id = d.id
         WHERE u.id = %s AND u.mot_de_passe = %s
     """
-    
     result = run_query(query, (user_id, password))
-
+    
     if result and len(result) > 0:
         user = result[0]
-
         st.session_state['logged_in'] = True
         st.session_state['user_id'] = user['id']
         st.session_state['role'] = user['role']
         st.session_state['nom_complet'] = f"{user.get('prenom','')} {user.get('nom','')}".strip()
         st.session_state['departement_id'] = user.get('dept_id')
         st.session_state['departement'] = user.get('departement')
-
         return True
-
     return False
 
 
