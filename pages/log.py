@@ -585,45 +585,54 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Database connection functions (same as before)
+# Database connection functions
 def get_connection():
-    if "conn" not in st.session_state:
-        try:
-            cfg = st.secrets["mysql"]
-            st.session_state.conn = mysql.connector.connect(
-                host=cfg["host"],
-                port=int(cfg["port"]),
-                database=cfg["database"],
-                user=cfg["user"],
-                password=cfg["password"],
-                autocommit=True
-            )
-        except Error as e:
-            st.error(f"Erreur DB : {e}")
-            st.stop()
-    return st.session_state.conn
-
-conn = get_connection()
+    """Get database connection from secrets"""
+    try:
+        cfg = st.secrets["mysql"]
+        conn = mysql.connector.connect(
+            host=cfg["host"],
+            port=int(cfg["port"]),
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=True,
+            connection_timeout=10
+        )
+        return conn
+    except Error as e:
+        st.error(f"Connection error: {e}")
+        return None
 
 def run_query(query, params=None, fetch=True):
+    """Execute query and return results"""
+    conn = None
     try:
+        conn = get_connection()
         if conn is None:
             return None
+            
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, params) if params else cursor.execute(query)
+        cursor.execute(query, params or ())
+
         if fetch:
             result = cursor.fetchall()
-            cursor.close()
-            return result
-        conn.commit()
+        else:
+            conn.commit()
+            result = True
+
         cursor.close()
-        return True
-    except Error:
+        conn.close()
+        return result
+
+    except Error as e:
+        st.error(f"Database error: {e}")
+        if conn:
+            conn.close()
         return None
 
 def authenticate_user(user_id, password):
-    if conn is None:
-        return False
+    """Authenticate user and set session state"""
     query = """
         SELECT u.*, p.nom, p.prenom, p.dept_id, d.nom as departement
         FROM utilisateurs u
@@ -632,7 +641,8 @@ def authenticate_user(user_id, password):
         WHERE u.id = %s AND u.mot_de_passe = %s
     """
     result = run_query(query, (user_id, password))
-    if result:
+    
+    if result and len(result) > 0:
         user = result[0]
         st.session_state['logged_in'] = True
         st.session_state['user_id'] = user['id']
@@ -786,7 +796,20 @@ def main():
                             ❌ **Échec de l'authentification**  
                             Veuillez vérifier vos identifiants et réessayer.
                             """)
-
+        
+        # Add footer
+        st.markdown("""
+        <div class="auth-footer">
+            <div class="footer-links">
+                <a href="#" onclick="alert('Contactez le support technique.'); return false;">Support</a>
+                <a href="#" onclick="alert('Consultez la documentation officielle.'); return false;">Documentation</a>
+                <a href="#" onclick="alert('Politique de confidentialité en cours de développement.'); return false;">Confidentialité</a>
+            </div>
+            <div class="version">v1.0.0-beta</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)  # Close form-section div
 
 if __name__ == "__main__":
     main()
