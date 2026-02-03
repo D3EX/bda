@@ -321,10 +321,10 @@ with st.sidebar:
     st.markdown("**📅 Période de Recherche**")
     col1, col2 = st.columns(2)
     with col1:
-        date_debut = st.date_input("Début", 
-                                  datetime.now(), 
-                                  key="date_debut",
-                                  help="Date de début de recherche")
+        date_debut = st.date_input(
+                               "Début",
+                                date(2025, 1, 1),
+                                key="date_debut")
     with col2:
         date_fin = st.date_input("Fin", 
                                 datetime.now() + timedelta(days=30), 
