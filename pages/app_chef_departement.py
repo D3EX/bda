@@ -320,7 +320,6 @@ def load_secrets():
         "password": ""
     }
 
-@st.cache_resource(ttl=3600)  # Cache la connexion pour 1 heure
 def init_connection():
     """Initialiser la connexion avec connection pooling"""
     try:
