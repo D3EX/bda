@@ -12,8 +12,6 @@ from decimal import Decimal
 import os
 import toml
 import time as time_module
-from datetime import time
-from datetime import time
 from contextlib import contextmanager
 
 # Configuration de la page
@@ -298,21 +296,33 @@ CHEF_ID = st.session_state.user_id
 
 def load_secrets():
     """Charger les secrets de configuration"""
+    # D'abord essayer streamlit secrets
+    try:
+        if hasattr(st, 'secrets') and 'mysql' in st.secrets:
+            return dict(st.secrets.mysql)
+    except:
+        pass
+    
+    # Sinon, essayer les fichiers locaux
     possible_paths = [
         r"C:\Users\FARES DH\.streamlit\secrets.toml",
         r"C:\Users\FARES DH\Desktop\pree\.streamlit\secrets.toml",
         ".streamlit/secrets.toml",
-        "secrets.toml"
+        "secrets.toml",
+        "../.streamlit/secrets.toml"
     ]
     
     for path in possible_paths:
         try:
             if os.path.exists(path):
                 secrets = toml.load(path)
-                return secrets.get("mysql", {})
-        except:
+                mysql_config = secrets.get("mysql", {})
+                if mysql_config:
+                    return mysql_config
+        except Exception as e:
             continue
     
+    # Fallback aux valeurs par défaut
     return {
         "host": "localhost",
         "database": "planning_examens",
@@ -320,22 +330,27 @@ def load_secrets():
         "password": ""
     }
 
+# Charger les secrets une fois
+MYSQL_CONFIG = load_secrets()
+
 @contextmanager
 def get_connection():
     """Gestionnaire de contexte pour les connexions"""
     conn = None
     try:
         conn = mysql.connector.connect(
-            host=st.secrets["mysql"]["host"],
-            port=st.secrets["mysql"].get("port", 3306),
-            database=st.secrets["mysql"]["database"],
-            user=st.secrets["mysql"]["user"],
-            password=st.secrets["mysql"]["password"],
-            connection_timeout=10
+            host=MYSQL_CONFIG.get("host", "localhost"),
+            port=MYSQL_CONFIG.get("port", 3306),
+            database=MYSQL_CONFIG.get("database", "planning_examens"),
+            user=MYSQL_CONFIG.get("user", "root"),
+            password=MYSQL_CONFIG.get("password", ""),
+            connection_timeout=10,
+            charset='utf8mb4'
         )
         yield conn
     except Error as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
+        st.error(f"Configuration utilisée: host={MYSQL_CONFIG.get('host')}, db={MYSQL_CONFIG.get('database')}")
         raise
     finally:
         if conn and conn.is_connected():
@@ -375,6 +390,7 @@ def run_query(query, params=None, fetch=True):
                 return True
     except Error as e:
         st.error(f"Erreur SQL: {e}")
+        st.error(f"Requête: {query[:100]}...")
         return None
 
 @st.cache_data(ttl=300)  # Cache pour 5 minutes
@@ -719,7 +735,7 @@ def render_tableau_de_bord():
                         if st.button(f"✅", 
                                     key=f"val_{row['id']}", 
                                     help="Valider cet examen",
-                                    use_container_width=True):
+                                    width='stretch'):
                             if valider_examen_departement(row['id']):
                                 st.success(f"✓ Examen validé!")
                                 st.rerun()
@@ -867,7 +883,7 @@ def render_validation_edt():
                             if row['statut'] == 'planifié':
                                 if st.button(f"Valider", 
                                             key=f"val_ex_{row['id']}", 
-                                            use_container_width=True,
+                                            width='stretch',
                                             type="primary"):
                                     if valider_examen_departement(row['id']):
                                         st.success(f"✓ Examen validé!")
@@ -941,7 +957,7 @@ def render_validation_edt():
                                 formation_id = formation_id_query[0]['id']
                                 if st.button(f"Tout Valider", 
                                            key=f"val_all_{formation_id}", 
-                                           use_container_width=True,
+                                           width='stretch',
                                            type="primary"):
                                     if valider_tous_examens_formation(formation_id, date_debut, date_fin):
                                         st.success(f"✓ Tous les examens validés!")
@@ -1280,10 +1296,6 @@ def render_planning_departement():
 # CONFIGURATION INITIALE
 # ============================================================================
 
-# Charger les secrets
-secrets = load_secrets()
-st.secrets["mysql"] = secrets
-
 # Récupérer le département
 with st.spinner("Récupération des informations du département..."):
     departement_info = get_departement_chef(CHEF_ID)
@@ -1355,18 +1367,18 @@ with st.sidebar:
     # Options de performance
     st.markdown('<div style="font-weight: 600; color: #1a237e; margin-bottom: 1rem;">⚡ Options</div>', unsafe_allow_html=True)
     
-    if st.button("🗑️ Effacer le cache", use_container_width=True, type="secondary"):
+    if st.button("🗑️ Effacer le cache", width='stretch', type="secondary"):
         st.cache_data.clear()
         st.success("Cache effacé!")
         st.rerun()
     
-    if st.button("🔄 Actualiser", use_container_width=True):
+    if st.button("🔄 Actualiser", width='stretch'):
         st.rerun()
     
     st.markdown("---")
     
     # Déconnexion
-    if st.button("🚪 Déconnexion", use_container_width=True, type="primary"):
+    if st.button("🚪 Déconnexion", width='stretch', type="primary"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.switch_page("pages/log.py")
