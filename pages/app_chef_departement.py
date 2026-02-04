@@ -1,4 +1,4 @@
-# pages/app_chef_departement.py - Version avec période 2025-2026
+# pages/app_chef_departement.py - Version avec période 2025-2026 - CORRIGÉE
 import streamlit as st
 import pandas as pd
 import mysql.connector
@@ -14,7 +14,7 @@ import toml
 import time as time_module
 from datetime import time
 from datetime import time
-
+from contextlib import contextmanager
 
 # Configuration de la page
 st.set_page_config(
@@ -293,7 +293,7 @@ if st.session_state.role != 'chef_departement':
 CHEF_ID = st.session_state.user_id
 
 # ============================================================================
-# FONCTIONS UTILITAIRES OPTIMISÉES
+# FONCTIONS UTILITAIRES OPTIMISÉES - AVEC GESTION DE CONNEXION
 # ============================================================================
 
 def load_secrets():
@@ -320,46 +320,42 @@ def load_secrets():
         "password": ""
     }
 
-def init_connection():
-    """Initialiser la connexion avec connection pooling"""
+@contextmanager
+def get_connection():
+    """Gestionnaire de contexte pour les connexions"""
+    conn = None
     try:
         conn = mysql.connector.connect(
             host=st.secrets["mysql"]["host"],
-            port=st.secrets["mysql"]["port"],
+            port=st.secrets["mysql"].get("port", 3306),
             database=st.secrets["mysql"]["database"],
             user=st.secrets["mysql"]["user"],
             password=st.secrets["mysql"]["password"],
-            pool_name="mypool",
-            pool_size=3,
-            pool_reset_session=True,
-            buffered=True
+            connection_timeout=10
         )
-        return conn
+        yield conn
     except Error as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
-        return None
+        raise
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
 
 def run_query(query, params=None, fetch=True):
-    """Exécuter une requête SQL de manière optimisée"""
+    """Exécuter une requête SQL de manière optimisée avec gestion de connexion"""
     try:
-        cursor = conn.cursor(dictionary=True, buffered=True)
-        
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        
-        if fetch:
-            # Charger les résultats par batch pour optimiser la mémoire
-            batch_size = 500
-            results = []
-            while True:
-                batch = cursor.fetchmany(batch_size)
-                if not batch:
-                    break
-                
-                # Convertir les types pendant le chargement
-                for row in batch:
+        with get_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            
+            if fetch:
+                results = cursor.fetchall()
+                # Convertir les types
+                for row in results:
                     for key, value in row.items():
                         if isinstance(value, timedelta):
                             total_seconds = value.total_seconds()
@@ -369,15 +365,14 @@ def run_query(query, params=None, fetch=True):
                             row[key] = time(hours, minutes, seconds)
                         elif isinstance(value, Decimal):
                             row[key] = float(value)
-                
-                results.extend(batch)
-            
-            cursor.close()
-            return results
-        else:
-            conn.commit()
-            cursor.close()
-            return True
+                        elif isinstance(value, datetime):
+                            row[key] = value.strftime('%Y-%m-%d %H:%M:%S')
+                cursor.close()
+                return results
+            else:
+                conn.commit()
+                cursor.close()
+                return True
     except Error as e:
         st.error(f"Erreur SQL: {e}")
         return None
@@ -1287,14 +1282,7 @@ def render_planning_departement():
 
 # Charger les secrets
 secrets = load_secrets()
-
-# Initialiser la connexion
-with st.spinner("Connexion à la base de données..."):
-    conn = init_connection()
-
-if not conn:
-    st.error("❌ Impossible de se connecter à la base de données.")
-    st.stop()
+st.secrets["mysql"] = secrets
 
 # Récupérer le département
 with st.spinner("Récupération des informations du département..."):
@@ -1319,7 +1307,6 @@ with st.sidebar:
     st.markdown('<div class="user-avatar">👨‍💼</div>', unsafe_allow_html=True)
     st.markdown(f'<h3 style="color: black; margin-bottom: 5px;">{st.session_state.nom_complet}</h3>', unsafe_allow_html=True)
     st.markdown(f'<p style="color: black; margin: 0; font-size: 14px;">Chef de Département</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -1419,6 +1406,7 @@ st.markdown("---")
 if menu in ["✅ Validation EDT", "📊 Statistiques Département"]:
     with st.spinner("Chargement des données..."):
         time_module.sleep(0.5)  # Petite pause pour montrer le spinner
+
 if menu == "🏠 Tableau de Bord":
     render_tableau_de_bord()
     
